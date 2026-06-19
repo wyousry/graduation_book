@@ -1,3 +1,10 @@
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {1.1}{\ignorespaces Tools and Technologies Used in Learnova}}{9}{table.caption.3}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Comparison of Traditional vs.\ AI-Powered E-Learning Platforms}}{14}{table.caption.4}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Embedding Model Configuration and Design Decisions}}{21}{table.caption.5}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces FLAN-T5 Summary Type Configurations}}{22}{table.caption.6}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces RAG Service Component Overview}}{23}{table.caption.7}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces SSE Protocol Events in the RAG Streaming Endpoint}}{24}{table.caption.8}%
 \contentsfinish 

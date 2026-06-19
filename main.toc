@@ -21,4 +21,44 @@
 \contentsline {subsection}{\numberline {1.13.1}Timeline and Milestones}{10}{subsection.1.13.1}%
 \contentsline {subsection}{\numberline {1.13.2}Team Roles and Responsibilities}{10}{subsection.1.13.2}%
 \contentsline {section}{Chapter Summary}{10}{subsection.1.13.2}%
+\contentsline {chapter}{\numberline {2}Literature Review}{12}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Overview}{13}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Existing E-Learning and Audiobook Platforms}{13}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Popular Audiobook Platforms}{13}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Popular E-Learning Platforms}{13}{subsection.2.2.2}%
+\contentsline {section}{\numberline {2.3}Comparison of Traditional and AI-Powered Platforms}{14}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Applications of AI in Education}{14}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Recommendation Systems in E-Learning}{14}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Retrieval-Augmented Generation (RAG) and LangChain}{15}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Text-to-Speech Technologies}{16}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Flutter as a Cross-Platform Framework}{16}{section.2.8}%
+\contentsline {section}{\numberline {2.9}Related Works}{16}{section.2.9}%
+\contentsline {section}{\numberline {2.10}Limitations of Existing Systems}{17}{section.2.10}%
+\contentsline {section}{Chapter Summary}{18}{section.2.10}%
+\contentsline {chapter}{\numberline {3}Intelligent Features of the System}{19}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Overview}{20}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Embedding Service --- Semantic Vectorisation}{20}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Design Rationale}{20}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Embedding Model: all-mpnet-base-v2}{20}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Processing Pipeline}{21}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Summarisation Service}{21}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Model: FLAN-T5-large}{21}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Map-Reduce Pipeline}{22}{subsection.3.3.2}%
+\contentsline {section}{\numberline {3.4}RAG Q\&A Service}{22}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Architecture}{22}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Retriever --- Similarity Threshold Filtering}{23}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Chain --- Grounded Prompting}{23}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}Streaming --- Server-Sent Events (SSE)}{24}{subsection.3.4.4}%
+\contentsline {section}{\numberline {3.5}Text-to-Speech Pipeline}{24}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Pipeline Stages}{24}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Flutter Audio Player}{24}{subsection.3.5.2}%
+\contentsline {section}{\numberline {3.6}Recommendation Engine}{25}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Data Sources}{25}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Approach}{25}{subsection.3.6.2}%
+\contentsline {section}{\numberline {3.7}Ethical Considerations}{25}{section.3.7}%
+\contentsline {subsection}{\numberline {3.7.1}Hallucination Mitigation}{25}{subsection.3.7.1}%
+\contentsline {subsection}{\numberline {3.7.2}Transparency and Source Attribution}{26}{subsection.3.7.2}%
+\contentsline {subsection}{\numberline {3.7.3}Content Scope and Copyright}{26}{subsection.3.7.3}%
+\contentsline {subsection}{\numberline {3.7.4}Model Bias and Limitations}{26}{subsection.3.7.4}%
+\contentsline {section}{Chapter Summary}{26}{subsection.3.7.4}%
 \contentsfinish 
