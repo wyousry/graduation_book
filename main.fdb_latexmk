@@ -1,14 +1,15 @@
 # Fdb version 4
-["bibtex main"] 1782593155.47534 "main.aux" "main.bbl" "main" 1782593158.29745 0
+["bibtex main"] 1782594605.60555 "main.aux" "main.bbl" "main" 1782594608.65104 0
   "./references.bib" 1781900099.84315 3516 9316f97d2b14160905c17236f6f0d793 ""
   "/usr/share/texlive/texmf-dist/bibtex/bst/base/ieeetr.bst" 1292289607 18361 1a00e58565e7f19bf2b3e1bfb82254ae ""
-  "main.aux" 1782593157.73805 20862 c62afaf952ddb3038384cb8a5c22c3d5 "pdflatex"
+  "main.aux" 1782594608.00684 20862 453e7ab297df82bcd94c33a7f8167aca "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1782593155.67696 "main.tex" "main.pdf" "main" 1782593158.2978 0
+["pdflatex"] 1782594605.80927 "/home/wafaa/graduation-book/main.tex" "main.pdf" "main" 1782594608.65156 0
   "/etc/texmf/web2c/texmf.cnf" 1780989088.16153 475 c0e671620eb5563b2130f56340a5fde8 ""
+  "/home/wafaa/graduation-book/main.tex" 1782593127.52803 4057 9c6bc59b1a65486a05b3205974e69dce ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecrm1200.tfm" 1136768653 3584 f80ddd985bd00e29e9a6047ebd9d4781 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1246382020 916 f87d7c45f9c908e672703b83b72241a3 ""
@@ -145,7 +146,7 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1707919699 40399 f2c302f7d2af602abb742093540a5834 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1780989125.08446 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1780989248 8215165 eff8a93c465ca4674eb8a6492022d59a ""
-  "chapters/abstract.tex" 1780996370.56793 2031 1c3af90406e3040c80262585083c9f71 ""
+  "chapters/abstract.tex" 1782594602.12273 3116 358c576f97196a66a4042de1e5a374b0 ""
   "chapters/acknowledgments.tex" 1780996545.56361 1285 8d7af65b71bc383711f74801e6e722bb ""
   "chapters/chapter1.tex" 1781794000.87426 20471 9d32bc0dd4d849f9fb6dd72b3684ba17 ""
   "chapters/chapter2.tex" 1781900015.62986 14219 08fad23ae644d459a56d01cfe87c296a ""
@@ -154,13 +155,13 @@
   "chapters/cover.tex" 1780993215.26004 1328 30a9c90f96694fd7ea16d47d6fc5e2b9 ""
   "images/logo.png" 1780990727.88746 112407 8b4c73df4b069c23f790e3a2597493f9 ""
   "images/logo2.png" 1780990727.94074 4341 3c3f3efaf218ac4375ff23dfd7ca844f ""
-  "main.aux" 1782593157.73805 20862 c62afaf952ddb3038384cb8a5c22c3d5 "pdflatex"
-  "main.bbl" 1782593155.66909 2638 4d22d341b4c7b32c845eec76353eb29f "bibtex main"
-  "main.lof" 1782593157.74305 211 00b069560a6827d016a97411a4d84132 "pdflatex"
-  "main.lot" 1782593157.74305 2805 96b7a386ea28977b0261bba40abde485 "pdflatex"
-  "main.out" 1782593157.74205 15208 509bcd718a757f451eac43dbef0e62d5 "pdflatex"
+  "main.aux" 1782594608.00684 20862 453e7ab297df82bcd94c33a7f8167aca "pdflatex"
+  "main.bbl" 1782594605.8018 2592 3c8e4250a757b9a2565a22f70f5ded1e "bibtex main"
+  "main.lof" 1782594608.01384 211 00b069560a6827d016a97411a4d84132 "pdflatex"
+  "main.lot" 1782594608.01384 2805 96b7a386ea28977b0261bba40abde485 "pdflatex"
+  "main.out" 1782594608.01184 15208 509bcd718a757f451eac43dbef0e62d5 "pdflatex"
   "main.tex" 1782593127.52803 4057 9c6bc59b1a65486a05b3205974e69dce ""
-  "main.toc" 1782593157.74305 7960 66d2c88893aeb5118c5b021ca61cdaec "pdflatex"
+  "main.toc" 1782594608.01384 7960 66d2c88893aeb5118c5b021ca61cdaec "pdflatex"
   (generated)
   "main.aux"
   "main.lof"

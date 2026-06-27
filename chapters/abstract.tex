@@ -1,34 +1,51 @@
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
 
-In the contemporary digital learning landscape, the challenge of delivering 
-personalized, accessible, and time-efficient education has become increasingly 
-critical. Modern learners face a fundamental paradox: unprecedented access to 
-knowledge paired with diminishing time to engage with it. This project presents 
-\textbf{Learnova} — an AI-powered Audiobook and E-Learning platform designed to 
-bridge the gap between fragmented audiobook services and structured educational 
-environments through intelligent automation and audio-first delivery.
+In the contemporary digital learning landscape, the challenge of delivering
+personalized, accessible, and time-efficient education has become increasingly
+critical. Modern learners face a fundamental paradox: unprecedented access to
+knowledge paired with diminishing time to engage with it. This project presents
+\textbf{Learnova} --- an AI-powered Audiobook and E-Learning platform designed
+to bridge the gap between fragmented audiobook services and structured
+educational environments through intelligent automation, audio-first delivery,
+and interactive course support.
 
-The platform enables users to transform PDF books and educational materials into 
-immersive, high-quality audio experiences via a state-of-the-art Text-to-Speech 
-(TTS) pipeline, delivering a Spotify-inspired listening interface with persistent 
-Mini Player support, adjustable playback speed, and chapter-level navigation. 
-Beyond audio delivery, Learnova integrates artificial intelligence capabilities 
-including a context-aware conversational chatbot, AI-generated chapter 
-summarization, and a personalized recommendation engine — ensuring each user 
-receives an adaptive and tailored learning journey.
+The platform enables users to transform PDF books and educational materials into
+immersive, high-quality audio experiences via a state-of-the-art Text-to-Speech
+(TTS) pipeline, delivering a Spotify-inspired listening interface with persistent
+Mini Player support, adjustable playback speed, and chapter-level navigation.
+In parallel, Learnova provides a structured course management system featuring
+video lessons with AI-generated transcripts, enabling learners to search, review,
+and interact with course content through natural language. The
+\texttt{TranscribeAllLessons} pipeline automatically processes video lessons
+through an AI transcription service, making all course content fully searchable
+and accessible.
 
-The system is built on a modern cross-platform mobile architecture using 
-\textbf{Flutter} and \textbf{Dart} for the frontend with Bloc state management, 
-backed by a \textbf{PHP Laravel} RESTful API and \textbf{MySQL} database. 
-AI features are powered by large language model APIs including OpenAI and Gemini, 
-integrated through a LangChain-based RAG pipeline. Real-time capabilities are 
-supported via Socket.io and Laravel Echo, while secure authentication is handled 
-through JWT and Laravel Sanctum.
+Beyond audio and course delivery, Learnova integrates a suite of six Python AI
+microservices covering the full intelligent library pipeline: semantic
+vectorisation using \texttt{all-mpnet-base-v2} embeddings stored in Pinecone,
+a FLAN-T5-based map-reduce summarisation service, a Retrieval-Augmented
+Generation (RAG) Q\&A service powered by GPT-4o-mini with Server-Sent Events
+streaming and page-level citation, a hybrid recommendation engine combining
+Neural Collaborative Filtering (NCF) with content-based filtering, and a
+semantic search service with intent-aware re-ranking. A context-aware
+conversational chatbot provides on-demand assistance grounded in book content,
+ensuring each user receives accurate, citation-backed answers.
 
-This project demonstrates the practical feasibility of unifying audio-first 
-consumption with structured e-learning progression, establishing Learnova as a 
-foundational model for next-generation educational platforms that prioritize 
-accessibility, personalization, and learner autonomy.
+The system is built on a modern cross-platform mobile architecture using
+\textbf{Flutter} and \textbf{Dart} for the frontend with BLoC state management,
+backed by a \textbf{PHP Laravel 12} RESTful API and \textbf{MySQL 8.0} database.
+Laravel acts as a central AI proxy gateway, forwarding requests to the
+appropriate microservice and degrading gracefully on service unavailability.
+An administrative panel built with FilamentPHP 3 provides full content
+management, user role control, and AI metadata oversight. Secure authentication
+is handled through JWT and Laravel Sanctum, with support for OTP-based password
+reset and social login via Google and Facebook OAuth.
+
+This project demonstrates the practical feasibility of unifying audio-first
+consumption, structured course progression, and a full AI knowledge pipeline
+within a single cohesive platform, establishing Learnova as a foundational
+model for next-generation educational systems that prioritize accessibility,
+personalization, and learner autonomy.
 
 \newpage

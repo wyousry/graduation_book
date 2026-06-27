@@ -1,62 +1,39 @@
 \begin{thebibliography}{10}
 
 \bibitem{tiwari2023}
-R.~Tiwari, ``The integration of {AI} and machine learning in education and its
-  potential to personalize and improve student learning experiences,'' {\em
-  International Journal of Scientific Research in Engineering and Management},
-  vol.~7, no.~2, 2023.
+R.~Tiwari, ``The integration of {AI} and machine learning in education and its potential to personalize and improve student learning experiences,'' {\em International Journal of Scientific Research in Engineering and Management}, vol.~7, no.~2, 2023.
 
 \bibitem{jayaram2024}
-Y.~Jayaram, ``{AI}-driven personalization 2.0: Hyper-personalized journeys for
-  every student type,'' {\em International Journal of Artificial Intelligence,
-  Data Science, and Machine Learning}, 2024.
+Y.~Jayaram, ``{AI}-driven personalization 2.0: Hyper-personalized journeys for every student type,'' {\em International Journal of Artificial Intelligence, Data Science, and Machine Learning}, 2024.
 
 \bibitem{dasilva2023}
-F.~L. da~Silva {\em et~al.}, ``A systematic literature review on educational
-  recommender systems,'' {\em Education and Information Technologies}, 2023.
+F.~L. da~Silva {\em et~al.}, ``A systematic literature review on educational recommender systems,'' {\em Education and Information Technologies}, 2023.
 
 \bibitem{recsysreview2024}
-V.~Authors, ``Recommender systems: A comprehensive review (2017--2024),'' {\em
-  arXiv preprint}, 2024.
+V.~Authors, ``Recommender systems: A comprehensive review (2017--2024),'' {\em arXiv preprint}, 2024.
 
 \bibitem{yanes2020}
-N.~Yanes {\em et~al.}, ``A machine learning-based recommender system for
-  improving students learning experiences,'' {\em IEEE Access}, vol.~8,
-  pp.~201218--201235, 2020.
+N.~Yanes {\em et~al.}, ``A machine learning-based recommender system for improving students learning experiences,'' {\em IEEE Access}, vol.~8, pp.~201218--201235, 2020.
 
 \bibitem{elmaazouzi2024}
-Q.~EL~Maazouzi, A.~Retbi, and S.~Bennani, ``Optimizing recommendation systems
-  in {E}-learning: Synergistic integration of {LangChain}, {GPT} models, and
-  retrieval augmented generation ({RAG}),'' in {\em International Conference on
-  Smart Applications and Data Analysis}, Springer Nature Switzerland, 2024.
+Q.~EL~Maazouzi, A.~Retbi, and S.~Bennani, ``Optimizing recommendation systems in {E}-learning: Synergistic integration of {LangChain}, {GPT} models, and retrieval augmented generation ({RAG}),'' in {\em International Conference on Smart Applications and Data Analysis}, Springer Nature Switzerland, 2024.
 
 \bibitem{langchainsurvey2024}
-V.~Authors, ``A comprehensive survey and guide to multimodal large language
-  models in vision-language tasks,'' {\em arXiv preprint arXiv:2411.06284},
-  2024.
+V.~Authors, ``A comprehensive survey and guide to multimodal large language models in vision-language tasks,'' {\em arXiv preprint arXiv:2411.06284}, 2024.
 
 \bibitem{burgan2024}
-C.~Burgan, J.~Kowalski, and W.~Liao, ``Developing a retrieval augmented
-  generation ({RAG}) chatbot app using adaptive large language models ({LLM})
-  and {LangChain} framework,'' {\em Proceedings of the West Virginia Academy of
-  Science}, vol.~96, no.~1, 2024.
+C.~Burgan, J.~Kowalski, and W.~Liao, ``Developing a retrieval augmented generation ({RAG}) chatbot app using adaptive large language models ({LLM}) and {LangChain} framework,'' {\em Proceedings of the West Virginia Academy of Science}, vol.~96, no.~1, 2024.
 
 \bibitem{fluttertts2023}
-I.~Toniomo, ``flutter\_tts: {A} flutter plugin for text to speech.''
-  \url{https://pub.dev/packages/flutter\_tts}, 2023.
+I.~Toniomo, ``flutter\_tts: {A} flutter plugin for text to speech.'' \url{https://pub.dev/packages/flutter\_tts}, 2023.
 
 \bibitem{autoencoder2023}
-V.~Authors, ``Personalized {E}-learning recommender system based on
-  autoencoders,'' {\em Applied System Innovation}, vol.~6, no.~6, 2023.
+V.~Authors, ``Personalized {E}-learning recommender system based on autoencoders,'' {\em Applied System Innovation}, vol.~6, no.~6, 2023.
 
 \bibitem{ieeerecsys2024}
-V.~Authors, ``A digital recommendation system for personalized learning to
-  enhance online education: A review,'' {\em IEEE Xplore}, 2024.
+V.~Authors, ``A digital recommendation system for personalized learning to enhance online education: A review,'' {\em IEEE Xplore}, 2024.
 
 \bibitem{ikwuanusi2023}
-U.~F. Ikwuanusi, P.~A. Adepoju, and C.~S. Odionu, ``{AI}-driven solutions for
-  personalized knowledge dissemination and inclusive library user
-  experiences,'' {\em International Journal of Engineering Research Updates},
-  vol.~4, no.~2, pp.~052--062, 2023.
+U.~F. Ikwuanusi, P.~A. Adepoju, and C.~S. Odionu, ``{AI}-driven solutions for personalized knowledge dissemination and inclusive library user experiences,'' {\em International Journal of Engineering Research Updates}, vol.~4, no.~2, pp.~052--062, 2023.
 
 \end{thebibliography}
