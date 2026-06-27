@@ -1,0 +1,780 @@
+\chapter{Backend Implementation}
+
+\vspace{-0.5cm}
+\begin{center}
+\begin{minipage}{0.85\textwidth}
+\small
+\textbf{Contents}\\[0.3cm]
+\hspace*{1cm} 4.1 \quad Overview \dotfill \pageref{sec:ch4overview}\\
+\hspace*{1cm} 4.2 \quad Objectives \dotfill \pageref{sec:ch4objectives}\\
+\hspace*{1cm} 4.3 \quad Scope \dotfill \pageref{sec:ch4scope}\\
+\hspace*{1cm} 4.4 \quad System Architecture \dotfill \pageref{sec:ch4arch}\\
+\hspace*{1cm} 4.5 \quad Database Design \dotfill \pageref{sec:ch4db}\\
+\hspace*{1cm} 4.6 \quad API Documentation \dotfill \pageref{sec:ch4api}\\
+\hspace*{1cm} 4.7 \quad AI Microservices \dotfill \pageref{sec:ch4ai}\\
+\hspace*{1cm} 4.8 \quad Admin Panel (FilamentPHP 3) \dotfill \pageref{sec:ch4admin}\\
+\hspace*{1cm} 4.9 \quad Testing \dotfill \pageref{sec:ch4testing}\\
+\hspace*{1cm} 4.10 \quad Challenges Faced \dotfill \pageref{sec:ch4challenges}\\
+\hspace*{1cm} 4.11 \quad Future Work \dotfill \pageref{sec:ch4future}\\
+\end{minipage}
+\end{center}
+\vspace{0.5cm}
+\newpage
+
+% ===========================
+\section{Overview}
+\label{sec:ch4overview}
+
+The modern reader, student, and researcher face a growing challenge: the sheer
+volume of available books and digital resources makes it increasingly difficult
+to discover content that truly matches one's interests, academic needs, or
+research goals. Traditional library systems rely on keyword-based search, which
+often returns irrelevant results and fails to understand the user's intent.
+There is also a lack of platforms that combine book management, educational
+courses, intelligent recommendations, and AI-powered features in one unified
+system.
+
+Learnova addresses these challenges by building a centralized, scalable, and
+AI-integrated backend that powers personalized book and course discovery,
+semantic search, book summarization, and direct Q\&A from book content ---
+all through a clean RESTful API consumed by the Flutter mobile application.
+
+% ===========================
+\section{Objectives}
+\label{sec:ch4objectives}
+
+The main objectives of the backend system are:
+
+\begin{itemize}
+  \item To provide a secure RESTful API consumed by the Flutter mobile
+        application.
+  \item To implement full CRUD operations for books, courses, authors,
+        categories, and users.
+  \item To integrate JWT-based authentication and role-based access control
+        (Admin, Researcher, Student).
+  \item To support a review and rating system allowing users to evaluate books.
+  \item To manage user bookmark collections, personal reading shelves, and
+        favorites.
+  \item To integrate 6 Python AI microservices covering ingestion,
+        recommendations, semantic search, summarization, and Q\&A.
+  \item To support course management with video lessons and AI-powered lesson
+        transcription.
+  \item To deliver an admin panel (FilamentPHP 3) for efficient management of
+        all platform resources.
+  \item To implement OTP-based password reset and social login
+        (Google/Facebook).
+\end{itemize}
+
+% ===========================
+\section{Scope}
+\label{sec:ch4scope}
+
+\subsection{Included}
+
+\begin{itemize}
+  \item User registration, login, OTP password reset, and social login
+        (Google/Facebook).
+  \item JWT-based authentication via Laravel Sanctum with role-based access
+        control (admin, researcher, student).
+  \item Full CRUD for Books, Courses, Course Videos, Authors, Categories, and
+        Chapters.
+  \item Advanced search and filtering: global search, semantic search, search
+        history, and trending.
+  \item Review and rating system for books.
+  \item Bookmark, favorites, and personal library shelves management.
+  \item Onboarding: user topic preferences and profile setup.
+  \item Admin panel (FilamentPHP 3) with full CRUD, file uploads, and analytics
+        dashboard.
+  \item Full AI integration: 6 Python microservices via Docker (ingestion,
+        embedding, recommendations, semantic search, summarization, RAG Q\&A).
+  \item AI-powered lesson transcription via \texttt{TranscribeAllLessons}
+        command.
+  \item Proxy architecture: Laravel acts as a gateway forwarding requests to
+        AI microservices.
+\end{itemize}
+
+\subsection{Excluded}
+
+\begin{itemize}
+  \item Video conferencing or live streaming functionality.
+  \item Payment processing and subscription management.
+  \item Direct instructor consultation chat.
+  \item OCR for scanned documents (planned future enhancement).
+  \item Audio-book streaming (planned future enhancement).
+\end{itemize}
+
+% ===========================
+\section{System Architecture}
+\label{sec:ch4arch}
+
+The Learnova backend follows a layered RESTful API architecture built on
+\textbf{Laravel 12}. The system is designed around a proxy pattern where
+Laravel serves as the central gateway: it handles authentication, business
+logic, and database operations, while forwarding AI-related requests to
+dedicated Python microservices running in Docker containers.
+
+\begin{table}[H]
+\centering
+\caption{System Architecture Layers and Responsibilities}
+\label{tab:arch}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Layer} & \textbf{Technology} & \textbf{Responsibility} \\
+\hline
+Mobile Frontend    & Flutter (Dart)         & Cross-platform UI, state management, API consumption \\
+\hline
+Backend API        & Laravel 12 (PHP 8.1+)  & RESTful endpoints, business logic, authentication, AI proxy \\
+\hline
+Admin Panel        & FilamentPHP 3          & Admin UI, CRUD management, analytics dashboard \\
+\hline
+Database           & MySQL 8.0              & Persistent storage for users, books, courses, reviews \\
+\hline
+AI --- Ingestion   & Python (Port 8000)     & PDF/EPUB upload, text extraction, chunking, Kafka \\
+\hline
+AI --- Embedding   & Python (Background)    & Kafka consumer, vector generation, Pinecone storage \\
+\hline
+AI --- Recommendations & Python (Port 8001) & NCF + CBF hybrid recommendation engine \\
+\hline
+AI --- Semantic Search & Python (Port 8002) & Semantic search and result re-ranking \\
+\hline
+AI --- Summarization   & Python (Port 8003) & FLAN-T5 book summarization \\
+\hline
+AI --- RAG Q\&A    & Python (Port 8004)     & Groq LLM Q\&A with citations (sync + SSE streaming) \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{AI Proxy Architecture}
+
+All AI-related API calls follow a proxy pattern. The mobile app sends requests
+to Laravel, which forwards them to the appropriate AI microservice and returns
+the result. If an AI service is unavailable, Laravel returns a graceful error
+message rather than crashing the application. Figure~\ref{fig:proxy} illustrates
+this flow.
+
+\begin{figure}[H]
+\centering
+\begin{tabular}{ccc}
+\textbf{Mobile App} & \textbf{Laravel API} & \textbf{AI Microservices} \\[6pt]
+\multicolumn{3}{l}{POST /api/ai/search $\longrightarrow$ POST /search $\longrightarrow$ search-service:8002} \\
+\multicolumn{3}{l}{POST /api/ai/recommend $\longrightarrow$ POST /recommendations $\longrightarrow$ rec-service:8001} \\
+\multicolumn{3}{l}{POST /api/ai/summarise $\longrightarrow$ POST /summarise $\longrightarrow$ summarise-service:8003} \\
+\multicolumn{3}{l}{POST /api/ai/qa/stream $\longrightarrow$ POST /qa/stream $\longrightarrow$ rag-service:8004} \\
+\end{tabular}
+\caption{AI Proxy Request Flow in Learnova}
+\label{fig:proxy}
+\end{figure}
+
+% ===========================
+\section{Database Design}
+\label{sec:ch4db}
+
+The system uses \textbf{MySQL 8.0} as the primary relational database. The
+schema is normalized with clear foreign-key relationships between all entities.
+Laravel 12 migrations are used to version-control the schema. The database
+covers user management, book and course content, AI metadata, community
+features, and personal library management.
+
+\subsection{users}
+
+\begin{table}[H]
+\centering
+\caption{users Table Schema}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Description} \\
+\hline
+id                   & BIGINT (PK)    & Auto-incremented primary key \\
+\hline
+name                 & VARCHAR(255)   & Full name of the user \\
+\hline
+email                & VARCHAR(255)   & Unique email address \\
+\hline
+password             & VARCHAR(255)   & Bcrypt-hashed password \\
+\hline
+role                 & ENUM           & Role: admin, researcher, student \\
+\hline
+email\_verified\_at  & TIMESTAMP      & Email verification timestamp \\
+\hline
+created\_at / updated\_at & TIMESTAMP & Record timestamps \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{books}
+
+\begin{table}[H]
+\centering
+\caption{books Table Schema}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Description} \\
+\hline
+id             & BIGINT (PK)   & Auto-incremented primary key \\
+\hline
+title          & VARCHAR(255)  & Book title \\
+\hline
+isbn           & VARCHAR(255)  & Unique ISBN (used as AI service key) \\
+\hline
+author\_id     & BIGINT (FK)   & Reference to authors table \\
+\hline
+category\_id   & BIGINT (FK)   & Reference to categories table \\
+\hline
+description    & TEXT          & Book synopsis \\
+\hline
+cover\_image   & VARCHAR(255)  & Path to uploaded cover image \\
+\hline
+file\_path     & VARCHAR(255)  & Path to PDF/EPUB file for AI ingestion \\
+\hline
+published\_year & YEAR         & Year of publication \\
+\hline
+is\_free       & BOOLEAN       & Whether the book is free or paid \\
+\hline
+views\_count   & INT           & View counter for trending analytics \\
+\hline
+created\_at / updated\_at & TIMESTAMP & Record timestamps \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{courses}
+
+\begin{table}[H]
+\centering
+\caption{courses Table Schema}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Description} \\
+\hline
+id             & BIGINT (PK)   & Auto-incremented primary key \\
+\hline
+title          & VARCHAR(255)  & Course title \\
+\hline
+description    & TEXT          & Course description \\
+\hline
+category\_id   & BIGINT (FK)   & Reference to categories table \\
+\hline
+cover\_image   & VARCHAR(255)  & Course thumbnail image \\
+\hline
+is\_free       & BOOLEAN       & Whether the course is free or paid \\
+\hline
+is\_featured   & BOOLEAN       & Flag for featured courses \\
+\hline
+created\_at / updated\_at & TIMESTAMP & Record timestamps \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{course\_videos}
+
+\begin{table}[H]
+\centering
+\caption{course\_videos Table Schema}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Description} \\
+\hline
+id          & BIGINT (PK)   & Auto-incremented primary key \\
+\hline
+course\_id  & BIGINT (FK)   & Reference to courses table \\
+\hline
+title       & VARCHAR(255)  & Video lesson title \\
+\hline
+video\_url  & VARCHAR(255)  & URL or path to video file \\
+\hline
+transcript  & TEXT          & AI-generated transcript (TranscribeAllLessons) \\
+\hline
+duration    & INT           & Video duration in seconds \\
+\hline
+order       & INT           & Display order within the course \\
+\hline
+created\_at / updated\_at & TIMESTAMP & Record timestamps \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{reviews}
+
+\begin{table}[H]
+\centering
+\caption{reviews Table Schema}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Description} \\
+\hline
+id        & BIGINT (PK)     & Auto-incremented primary key \\
+\hline
+user\_id  & BIGINT (FK)     & Reference to users table \\
+\hline
+book\_id  & BIGINT (FK)     & Reference to books table \\
+\hline
+rating    & TINYINT (1--5)  & Star rating \\
+\hline
+comment   & TEXT            & Optional review text \\
+\hline
+created\_at / updated\_at & TIMESTAMP & Record timestamps \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{bookmarks and personal\_shelves}
+
+\begin{table}[H]
+\centering
+\caption{bookmarks / personal\_shelves Table Schema}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Description} \\
+\hline
+id           & BIGINT (PK)  & Auto-incremented primary key \\
+\hline
+user\_id     & BIGINT (FK)  & Reference to users table \\
+\hline
+book\_id     & BIGINT (FK)  & Reference to books table \\
+\hline
+shelf\_type  & ENUM         & Type: reading, completed, favorite \\
+\hline
+created\_at / updated\_at & TIMESTAMP & Record timestamps \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{ai\_metadata}
+
+\begin{table}[H]
+\centering
+\caption{ai\_metadata Table Schema}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Description} \\
+\hline
+id              & BIGINT (PK)  & Auto-incremented primary key \\
+\hline
+book\_id        & BIGINT (FK)  & Reference to books table \\
+\hline
+summary         & TEXT         & AI-generated summary (FLAN-T5) \\
+\hline
+keywords        & JSON         & Extracted keywords array \\
+\hline
+vector\_status  & ENUM         & Embedding status: pending, processing, done \\
+\hline
+mindmap\_data   & JSON         & Optional visual mind map data \\
+\hline
+created\_at / updated\_at & TIMESTAMP & Record timestamps \\
+\hline
+\end{tabularx}
+\end{table}
+
+% ===========================
+\section{API Documentation}
+\label{sec:ch4api}
+
+The backend exposes a comprehensive RESTful API. All endpoints return JSON
+responses. Authentication is handled via Laravel Sanctum Bearer tokens passed
+in the \texttt{Authorization} header. The base URL for all API calls is
+\texttt{http://localhost:8000/api}.
+
+\subsection{Authentication Endpoints}
+
+\begin{table}[H]
+\centering
+\caption{Authentication API Endpoints}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+\hline
+POST & /api/register                    & Register a new user account \\
+\hline
+POST & /api/login                       & Login and receive Sanctum token \\
+\hline
+POST & /api/logout                      & Invalidate current token \\
+\hline
+POST & /api/forgot-password/send-otp    & Send OTP for password reset \\
+\hline
+POST & /api/forgot-password/verify-otp  & Verify the received OTP code \\
+\hline
+POST & /api/forgot-password/reset       & Reset password after OTP verification \\
+\hline
+GET  & /api/auth/\{provider\}/redirect  & Redirect to Google or Facebook OAuth \\
+\hline
+GET  & /api/auth/\{provider\}/callback  & OAuth callback handler (social login) \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Books and Discovery Endpoints}
+
+\begin{table}[H]
+\centering
+\caption{Books and Discovery API Endpoints}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+\hline
+GET    & /api/home                    & Home page: personalized recommendations \\
+\hline
+GET    & /api/discover                & Discover page: trending and featured content \\
+\hline
+GET    & /api/discover/trending-20    & Top 20 trending books by views count \\
+\hline
+GET    & /api/discover/free-20        & Top 20 free books \\
+\hline
+GET    & /api/search                  & General search across books and content \\
+\hline
+GET    & /api/search/global           & Global comprehensive search \\
+\hline
+GET    & /api/search/filter/\{type\}  & Filtered search by type (book/author/course) \\
+\hline
+DELETE & /api/search/history/\{id?\}  & Delete search history entry \\
+\hline
+POST   & /api/books/\{id\}/favorite   & Toggle book favorite status \\
+\hline
+POST   & /api/books/\{id\}/listen     & Record a book listen/view event \\
+\hline
+GET    & /api/books/\{id\}/share      & Get shareable link for a book \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Courses Endpoints}
+
+\begin{table}[H]
+\centering
+\caption{Courses API Endpoints}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Method} & \textbf{Endpoint} & \textbf{Description} \\
+\hline
+GET    & /api/courses                            & List all courses with pagination \\
+\hline
+GET    & /api/courses/featured                   & Get featured courses \\
+\hline
+GET    & /api/courses/free                       & Get free courses \\
+\hline
+GET    & /api/courses/category/\{id\}            & Filter courses by category \\
+\hline
+GET    & /api/courses/\{id\}                     & Get course details including video list \\
+\hline
+POST   & /api/courses                            & Create a new course (Admin only) \\
+\hline
+PUT    & /api/courses/\{id\}                     & Update course details (Admin only) \\
+\hline
+DELETE & /api/courses/\{id\}                     & Delete a course (Admin only) \\
+\hline
+GET    & /api/courses/\{id\}/videos              & Get all videos for a course \\
+\hline
+POST   & /api/courses/\{id\}/videos              & Add a new video to a course \\
+\hline
+PUT    & /api/courses/\{id\}/videos/\{vidId\}    & Update a course video \\
+\hline
+DELETE & /api/courses/\{id\}/videos/\{vidId\}    & Delete a course video \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{AI Services Endpoints}
+
+All AI endpoints follow a proxy pattern: Laravel receives the request, validates
+authentication, and forwards to the appropriate Python microservice. If a
+service is unavailable, a graceful error is returned.
+
+\begin{table}[H]
+\centering
+\caption{AI Services API Endpoints}
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Method} & \textbf{Endpoint} & \textbf{Service} & \textbf{Description} \\
+\hline
+GET  & /api/ai/health              & All       & Health check for all AI microservices \\
+\hline
+POST & /api/ai/ingest              & :8000     & Upload PDF/EPUB for processing \\
+\hline
+GET  & /api/ai/ingest/\{isbn\}/status & :8000  & Track ingestion pipeline progress \\
+\hline
+POST & /api/ai/recommendations     & :8001     & Get personalized book recommendations \\
+\hline
+GET  & /api/ai/recommendations/cold-start & :8001 & Cold-start recommendations \\
+\hline
+POST & /api/ai/search/semantic     & :8002     & Semantic search by query \\
+\hline
+POST & /api/ai/search/similar/\{isbn\} & :8002 & Find similar books by ISBN \\
+\hline
+POST & /api/ai/summarise           & :8003     & Summarize a book by ISBN \\
+\hline
+GET  & /api/ai/summarise/\{isbn\}/progress & :8003 & Track summarization progress \\
+\hline
+POST & /api/ai/qa/sync             & :8004     & Full Q\&A response with citations \\
+\hline
+POST & /api/ai/qa/stream           & :8004     & Streaming Q\&A via SSE tokens \\
+\hline
+\end{tabularx}
+\end{table}
+
+% ===========================
+\section{AI Microservices}
+\label{sec:ch4ai}
+
+The AI layer consists of 6 Python microservices deployed via Docker Compose.
+Each service is independently scalable and communicates through well-defined
+REST interfaces. The services use \textbf{Kafka} for asynchronous pipeline
+processing and \textbf{Pinecone} as the vector database for semantic search
+capabilities.
+
+\begin{table}[H]
+\centering
+\caption{Python AI Microservices Overview}
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Service} & \textbf{Port} & \textbf{Model/Tech} & \textbf{Function} \\
+\hline
+ingestion        & 8000 & PyMuPDF + Kafka          & PDF/EPUB upload, text extraction, chunking \\
+\hline
+embedding        & ---  & Kafka + Pinecone         & Background: generate vectors, store in Pinecone \\
+\hline
+rec\_service     & 8001 & NCF + CBF hybrid         & Personalized recommendations \\
+\hline
+search\_service  & 8002 & Hugging Face + re-ranker & Semantic search with intent understanding \\
+\hline
+summarise\_service & 8003 & FLAN-T5              & Multi-type summarization: short, detailed, mind map \\
+\hline
+rag\_service     & 8004 & Groq LLM               & Q\&A from book text with citations (sync + SSE) \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Courses AI --- TranscribeAllLessons}
+
+As part of the courses AI integration, a dedicated Laravel Artisan command
+\texttt{TranscribeAllLessons} was developed. This command processes course video
+lessons by sending them to the AI transcription pipeline, generating text
+transcripts stored in the \texttt{course\_videos} table. This enables
+searchable lesson content, AI-powered lesson summaries, and accessibility
+improvements for hearing-impaired users.
+
+\begin{lstlisting}[language=bash, caption=Running the TranscribeAllLessons command]
+# Run transcription for all unprocessed lessons
+php artisan transcribe:all-lessons
+
+# The command:
+# 1. Fetches all course_videos without transcripts
+# 2. Sends each video to the AI transcription service
+# 3. Stores the returned transcript in the database
+# 4. Logs progress and handles failures gracefully
+\end{lstlisting}
+
+\subsection{AI Service Configuration}
+
+All AI service URLs and timeout settings are centralized in
+\texttt{config/ai.php}. The \texttt{AiService.php} class in
+\texttt{app/Services} provides a unified interface for all AI microservice
+calls, handling connection errors gracefully.
+
+\begin{table}[H]
+\centering
+\caption{AI Service Configuration Parameters}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Config Key} & \textbf{Default Value} & \textbf{Description} \\
+\hline
+ai.ingestion\_url & http://localhost:8000 & Ingestion service base URL \\
+\hline
+ai.rec\_url       & http://localhost:8001 & Recommendation service base URL \\
+\hline
+ai.search\_url    & http://localhost:8002 & Semantic search service base URL \\
+\hline
+ai.summarise\_url & http://localhost:8003 & Summarization service base URL \\
+\hline
+ai.rag\_url       & http://localhost:8004 & RAG Q\&A service base URL \\
+\hline
+ai.timeout        & 30 seconds            & Default HTTP timeout for AI requests \\
+\hline
+\end{tabularx}
+\end{table}
+
+% ===========================
+\section{Admin Panel (FilamentPHP 3)}
+\label{sec:ch4admin}
+
+The backend includes a full-featured admin panel built with \textbf{FilamentPHP
+3}, accessible at \texttt{/admin}. The panel is organized into four sections
+covering the entire platform.
+
+\begin{table}[H]
+\centering
+\caption{Admin Panel Sections and Resources}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Section} & \textbf{Resources} & \textbf{Description} \\
+\hline
+Library        & Books, Courses, Authors, Categories, Chapters & Full CRUD with file uploads \\
+\hline
+Community      & Reviews, Personal Shelves & User-generated content moderation \\
+\hline
+AI Engine      & AI Metadata & View summaries, keywords, vector status \\
+\hline
+Administration & Users       & User management with role assignment \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Admin Panel Default Credentials}
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Field} & \textbf{Value} \\
+\hline
+Admin Panel URL   & http://127.0.0.1:8000/admin \\
+\hline
+Default Email     & admin@admin.com \\
+\hline
+Default Password  & password \\
+\hline
+Note & Change credentials immediately after first deployment \\
+\hline
+\end{tabularx}
+\end{table}
+
+% ===========================
+\section{Testing}
+\label{sec:ch4testing}
+
+The backend APIs were tested using \textbf{Postman} for manual endpoint
+validation and Laravel's built-in \textbf{PHPUnit} framework for automated
+tests. Each endpoint was verified for correct HTTP response codes, data
+accuracy, authentication enforcement, and error handling for invalid inputs.
+
+\subsection{Testing Tools}
+
+\begin{table}[H]
+\centering
+\caption{Testing Tools and Scope}
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Tool} & \textbf{Scope} \\
+\hline
+Postman           & Manual API testing: auth flows, CRUD operations, AI endpoints, edge cases \\
+\hline
+PHPUnit           & Automated unit and integration tests for models and API responses \\
+\hline
+Browser (Manual)  & Admin panel CRUD, file uploads, dashboard analytics \\
+\hline
+Docker Health Checks & Verify all 6 AI microservices via \texttt{/health} endpoints \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Sample Test Cases}
+
+\begin{table}[H]
+\centering
+\caption{Sample API Test Cases and Expected Results}
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Endpoint} & \textbf{Method} & \textbf{Test Case} & \textbf{Expected Result} \\
+\hline
+/api/register        & POST & Valid data            & 201 Created + User object \\
+\hline
+/api/register        & POST & Duplicate email       & 422 Unprocessable Entity \\
+\hline
+/api/login           & POST & Valid credentials     & 200 OK + Sanctum token \\
+\hline
+/api/login           & POST & Wrong password        & 401 Unauthorized \\
+\hline
+/api/forgot-password/send-otp & POST & Valid phone & 200 OK + OTP sent \\
+\hline
+/api/discover/trending-20 & GET & Fetch trending   & 200 OK + 20 books \\
+\hline
+/api/courses         & GET  & List all courses      & 200 OK + Paginated \\
+\hline
+/api/ai/health       & GET  & All services running  & 200 OK + All healthy \\
+\hline
+/api/ai/search/semantic & POST & Valid query        & 200 OK + Ranked results \\
+\hline
+/api/ai/recommendations & POST & Valid user\_id    & 200 OK + Recommended books \\
+\hline
+/api/ai/summarise    & POST & Valid ISBN + type     & 200 OK + Summary text \\
+\hline
+/api/ai/qa/sync      & POST & Question about book   & 200 OK + Answer + citations \\
+\hline
+/api/bookmarks       & GET  & No auth token         & 401 Unauthorized \\
+\hline
+\end{tabularx}
+\end{table}
+
+% ===========================
+\section{Challenges Faced}
+\label{sec:ch4challenges}
+
+\begin{itemize}
+  \item \textbf{AI Microservices Integration}: Designing a proxy architecture
+        in Laravel that gracefully handles failures from any of the 6 Python
+        microservices without crashing the main application required careful
+        error handling and timeout configuration in \texttt{AiService.php}.
+
+  \item \textbf{Docker Environment Configuration}: Setting up Kafka, Pinecone,
+        and 6 containerized services with correct environment variables and
+        ensuring inter-container networking required extensive troubleshooting
+        of the \texttt{docker-compose.yml} configuration.
+
+  \item \textbf{Courses AI --- TranscribeAllLessons}: Developing the Artisan
+        command to batch-process course video lessons through the AI
+        transcription pipeline required handling partial failures, retry logic,
+        and efficient progress logging for large course libraries.
+
+  \item \textbf{Dual Authentication System}: Configuring Laravel Sanctum for
+        API JWT tokens alongside FilamentPHP's session-based admin
+        authentication without conflicts required careful guard configuration
+        in \texttt{auth.php}.
+
+  \item \textbf{Social Login Integration}: Implementing Google and Facebook
+        OAuth flows with proper callback handling, user creation/linking logic,
+        and token generation for the mobile app required careful configuration
+        of Laravel Socialite.
+
+  \item \textbf{Role-Based Access Control}: Implementing middleware that
+        correctly restricts admin-only endpoints while keeping public discovery
+        endpoints open required thorough testing across three user roles.
+
+  \item \textbf{Database Migration Ordering}: Managing foreign-key dependencies
+        across multiple related tables required careful ordering of Laravel
+        migrations to avoid constraint violations.
+\end{itemize}
+
+% ===========================
+\section{Future Work}
+\label{sec:ch4future}
+
+\begin{itemize}
+  \item Merge the courses AI branch (\texttt{TranscribeAllLessons}) into main
+        and extend to support real-time transcription during video upload.
+  \item Add audio-book streaming with AI-generated narration using
+        text-to-speech models.
+  \item Implement OCR for scanned document digitization using Tesseract or
+        similar tools.
+  \item Develop an advanced admin analytics dashboard with user engagement
+        metrics, book popularity trends, and AI usage statistics.
+  \item Expand the recommendation engine to include course recommendations
+        alongside book recommendations.
+  \item Add multi-language support (Arabic/English) across all API responses
+        and the admin panel.
+  \item Implement offline mode with client-side caching for saved books and
+        notes.
+  \item Add direct Q\&A for course lesson transcripts using the existing RAG
+        infrastructure.
+\end{itemize}
+
+% ===========================
+\section*{Chapter Summary}
+\addcontentsline{toc}{section}{Chapter Summary}
+
+This chapter documented the backend implementation of Learnova --- a robust,
+secure, and AI-integrated system built on Laravel 12, FilamentPHP 3, MySQL 8.0,
+and a suite of 6 Python AI microservices. The proxy architecture ensures that
+the platform degrades gracefully when AI services are unavailable, maintaining
+core functionality at all times. The \texttt{TranscribeAllLessons} command
+demonstrates the system's extensibility, enabling AI features to be added
+incrementally to existing content modules. The admin panel provides
+administrators with a powerful graphical interface for managing all platform
+content. The next chapter details the intelligent AI features built on top of
+this backend infrastructure.

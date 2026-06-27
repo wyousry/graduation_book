@@ -35,30 +35,61 @@
 \contentsline {section}{\numberline {2.9}Related Works}{16}{section.2.9}%
 \contentsline {section}{\numberline {2.10}Limitations of Existing Systems}{17}{section.2.10}%
 \contentsline {section}{Chapter Summary}{18}{section.2.10}%
-\contentsline {chapter}{\numberline {3}Intelligent Features of the System}{19}{chapter.3}%
+\contentsline {chapter}{\numberline {3}Backend Implementation}{19}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Overview}{20}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Embedding Service --- Semantic Vectorisation}{20}{section.3.2}%
-\contentsline {subsection}{\numberline {3.2.1}Design Rationale}{20}{subsection.3.2.1}%
-\contentsline {subsection}{\numberline {3.2.2}Embedding Model: all-mpnet-base-v2}{20}{subsection.3.2.2}%
-\contentsline {subsection}{\numberline {3.2.3}Processing Pipeline}{21}{subsection.3.2.3}%
-\contentsline {section}{\numberline {3.3}Summarisation Service}{21}{section.3.3}%
-\contentsline {subsection}{\numberline {3.3.1}Model: FLAN-T5-large}{21}{subsection.3.3.1}%
-\contentsline {subsection}{\numberline {3.3.2}Map-Reduce Pipeline}{22}{subsection.3.3.2}%
-\contentsline {section}{\numberline {3.4}RAG Q\&A Service}{22}{section.3.4}%
-\contentsline {subsection}{\numberline {3.4.1}Architecture}{22}{subsection.3.4.1}%
-\contentsline {subsection}{\numberline {3.4.2}Retriever --- Similarity Threshold Filtering}{23}{subsection.3.4.2}%
-\contentsline {subsection}{\numberline {3.4.3}Chain --- Grounded Prompting}{23}{subsection.3.4.3}%
-\contentsline {subsection}{\numberline {3.4.4}Streaming --- Server-Sent Events (SSE)}{24}{subsection.3.4.4}%
-\contentsline {section}{\numberline {3.5}Text-to-Speech Pipeline}{24}{section.3.5}%
-\contentsline {subsection}{\numberline {3.5.1}Pipeline Stages}{24}{subsection.3.5.1}%
-\contentsline {subsection}{\numberline {3.5.2}Flutter Audio Player}{24}{subsection.3.5.2}%
-\contentsline {section}{\numberline {3.6}Recommendation Engine}{25}{section.3.6}%
-\contentsline {subsection}{\numberline {3.6.1}Data Sources}{25}{subsection.3.6.1}%
-\contentsline {subsection}{\numberline {3.6.2}Approach}{25}{subsection.3.6.2}%
-\contentsline {section}{\numberline {3.7}Ethical Considerations}{25}{section.3.7}%
-\contentsline {subsection}{\numberline {3.7.1}Hallucination Mitigation}{25}{subsection.3.7.1}%
-\contentsline {subsection}{\numberline {3.7.2}Transparency and Source Attribution}{26}{subsection.3.7.2}%
-\contentsline {subsection}{\numberline {3.7.3}Content Scope and Copyright}{26}{subsection.3.7.3}%
-\contentsline {subsection}{\numberline {3.7.4}Model Bias and Limitations}{26}{subsection.3.7.4}%
-\contentsline {section}{Chapter Summary}{26}{subsection.3.7.4}%
+\contentsline {section}{\numberline {3.2}Objectives}{20}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Scope}{21}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Included}{21}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Excluded}{21}{subsection.3.3.2}%
+\contentsline {section}{\numberline {3.4}System Architecture}{21}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}AI Proxy Architecture}{22}{subsection.3.4.1}%
+\contentsline {section}{\numberline {3.5}Database Design}{23}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}users}{23}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}books}{23}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}courses}{24}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}course\_videos}{24}{subsection.3.5.4}%
+\contentsline {subsection}{\numberline {3.5.5}reviews}{24}{subsection.3.5.5}%
+\contentsline {subsection}{\numberline {3.5.6}bookmarks and personal\_shelves}{25}{subsection.3.5.6}%
+\contentsline {subsection}{\numberline {3.5.7}ai\_metadata}{25}{subsection.3.5.7}%
+\contentsline {section}{\numberline {3.6}API Documentation}{25}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Authentication Endpoints}{26}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Books and Discovery Endpoints}{26}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}Courses Endpoints}{27}{subsection.3.6.3}%
+\contentsline {subsection}{\numberline {3.6.4}AI Services Endpoints}{27}{subsection.3.6.4}%
+\contentsline {section}{\numberline {3.7}AI Microservices}{28}{section.3.7}%
+\contentsline {subsection}{\numberline {3.7.1}Courses AI --- TranscribeAllLessons}{29}{subsection.3.7.1}%
+\contentsline {subsection}{\numberline {3.7.2}AI Service Configuration}{29}{subsection.3.7.2}%
+\contentsline {section}{\numberline {3.8}Admin Panel (FilamentPHP 3)}{30}{section.3.8}%
+\contentsline {section}{\numberline {3.9}Testing}{31}{section.3.9}%
+\contentsline {subsection}{\numberline {3.9.1}Testing Tools}{31}{subsection.3.9.1}%
+\contentsline {subsection}{\numberline {3.9.2}Sample Test Cases}{32}{subsection.3.9.2}%
+\contentsline {section}{\numberline {3.10}Challenges Faced}{32}{section.3.10}%
+\contentsline {section}{\numberline {3.11}Future Work}{33}{section.3.11}%
+\contentsline {section}{Chapter Summary}{34}{section.3.11}%
+\contentsline {chapter}{\numberline {4}Intelligent Features of the System}{35}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Overview}{36}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Embedding Service --- Semantic Vectorisation}{36}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Design Rationale}{36}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Embedding Model: all-mpnet-base-v2}{36}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Processing Pipeline}{37}{subsection.4.2.3}%
+\contentsline {section}{\numberline {4.3}Summarisation Service}{37}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Model: FLAN-T5-large}{37}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Map-Reduce Pipeline}{38}{subsection.4.3.2}%
+\contentsline {section}{\numberline {4.4}RAG Q\&A Service}{38}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Architecture}{38}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Retriever --- Similarity Threshold Filtering}{39}{subsection.4.4.2}%
+\contentsline {subsection}{\numberline {4.4.3}Chain --- Grounded Prompting}{39}{subsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.4.4}Streaming --- Server-Sent Events (SSE)}{40}{subsection.4.4.4}%
+\contentsline {section}{\numberline {4.5}Text-to-Speech Pipeline}{40}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Pipeline Stages}{40}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Flutter Audio Player}{40}{subsection.4.5.2}%
+\contentsline {section}{\numberline {4.6}Recommendation Engine}{41}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Data Sources}{41}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Approach}{41}{subsection.4.6.2}%
+\contentsline {section}{\numberline {4.7}Ethical Considerations}{41}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}Hallucination Mitigation}{41}{subsection.4.7.1}%
+\contentsline {subsection}{\numberline {4.7.2}Transparency and Source Attribution}{42}{subsection.4.7.2}%
+\contentsline {subsection}{\numberline {4.7.3}Content Scope and Copyright}{42}{subsection.4.7.3}%
+\contentsline {subsection}{\numberline {4.7.4}Model Bias and Limitations}{42}{subsection.4.7.4}%
+\contentsline {section}{Chapter Summary}{42}{subsection.4.7.4}%
 \contentsfinish 

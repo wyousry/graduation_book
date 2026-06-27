@@ -3,8 +3,27 @@
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {2.1}{\ignorespaces Comparison of Traditional vs.\ AI-Powered E-Learning Platforms}}{14}{table.caption.4}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces Embedding Model Configuration and Design Decisions}}{21}{table.caption.5}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces FLAN-T5 Summary Type Configurations}}{22}{table.caption.6}%
-\contentsline {table}{\numberline {3.3}{\ignorespaces RAG Service Component Overview}}{23}{table.caption.7}%
-\contentsline {table}{\numberline {3.4}{\ignorespaces SSE Protocol Events in the RAG Streaming Endpoint}}{24}{table.caption.8}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces System Architecture Layers and Responsibilities}}{22}{table.caption.5}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces users Table Schema}}{23}{table.caption.7}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces books Table Schema}}{23}{table.caption.8}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces courses Table Schema}}{24}{table.caption.9}%
+\contentsline {table}{\numberline {3.5}{\ignorespaces course\_videos Table Schema}}{24}{table.caption.10}%
+\contentsline {table}{\numberline {3.6}{\ignorespaces reviews Table Schema}}{24}{table.caption.11}%
+\contentsline {table}{\numberline {3.7}{\ignorespaces bookmarks / personal\_shelves Table Schema}}{25}{table.caption.12}%
+\contentsline {table}{\numberline {3.8}{\ignorespaces ai\_metadata Table Schema}}{25}{table.caption.13}%
+\contentsline {table}{\numberline {3.9}{\ignorespaces Authentication API Endpoints}}{26}{table.caption.14}%
+\contentsline {table}{\numberline {3.10}{\ignorespaces Books and Discovery API Endpoints}}{26}{table.caption.15}%
+\contentsline {table}{\numberline {3.11}{\ignorespaces Courses API Endpoints}}{27}{table.caption.16}%
+\contentsline {table}{\numberline {3.12}{\ignorespaces AI Services API Endpoints}}{28}{table.caption.17}%
+\contentsline {table}{\numberline {3.13}{\ignorespaces Python AI Microservices Overview}}{29}{table.caption.18}%
+\contentsline {table}{\numberline {3.14}{\ignorespaces AI Service Configuration Parameters}}{30}{table.caption.19}%
+\contentsline {table}{\numberline {3.15}{\ignorespaces Admin Panel Sections and Resources}}{30}{table.caption.20}%
+\contentsline {table}{\numberline {3.16}{\ignorespaces Admin Panel Default Credentials}}{30}{table.caption.21}%
+\contentsline {table}{\numberline {3.17}{\ignorespaces Testing Tools and Scope}}{31}{table.caption.22}%
+\contentsline {table}{\numberline {3.18}{\ignorespaces Sample API Test Cases and Expected Results}}{32}{table.caption.23}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Embedding Model Configuration and Design Decisions}}{37}{table.caption.24}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces FLAN-T5 Summary Type Configurations}}{38}{table.caption.25}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces RAG Service Component Overview}}{39}{table.caption.26}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces SSE Protocol Events in the RAG Streaming Endpoint}}{40}{table.caption.27}%
 \contentsfinish 
