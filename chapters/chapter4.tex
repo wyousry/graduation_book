@@ -6,12 +6,13 @@
 \small
 \textbf{Contents}\\[0.3cm]
 \hspace*{1cm} 5.1 \quad Overview \dotfill \pageref{sec:ch5overview}\\
-\hspace*{1cm} 5.2 \quad Embedding Service --- Semantic Vectorisation \dotfill \pageref{sec:embedding}\\
-\hspace*{1cm} 5.3 \quad Summarisation Service \dotfill \pageref{sec:summarisation}\\
-\hspace*{1cm} 5.4 \quad RAG Q\&A Service \dotfill \pageref{sec:ragservice}\\
-\hspace*{1cm} 5.5 \quad Text-to-Speech Pipeline \dotfill \pageref{sec:ttspipeline}\\
-\hspace*{1cm} 5.6 \quad Recommendation Engine \dotfill \pageref{sec:recommender}\\
-\hspace*{1cm} 5.7 \quad Ethical Considerations \dotfill \pageref{sec:ethics}\\
+\hspace*{1cm} 5.2 \quad Ingestion Service --- Document Processing Pipeline \dotfill \pageref{sec:ingestion}\\
+\hspace*{1cm} 5.3 \quad Embedding Service --- Semantic Vectorisation \dotfill \pageref{sec:embedding}\\
+\hspace*{1cm} 5.4 \quad Search Service --- Two-Stage Semantic Retrieval \dotfill \pageref{sec:search}\\
+\hspace*{1cm} 5.5 \quad Summarisation Service \dotfill \pageref{sec:summarisation}\\
+\hspace*{1cm} 5.6 \quad RAG Q\&A Service \dotfill \pageref{sec:ragservice}\\
+\hspace*{1cm} 5.7 \quad Recommendation Service --- Hybrid NCF + CBF \dotfill \pageref{sec:recommender}\\
+\hspace*{1cm} 5.8 \quad Ethical Considerations \dotfill \pageref{sec:ethics}\\
 \end{minipage}
 \end{center}
 \vspace{0.5cm}
@@ -21,48 +22,119 @@
 \section{Overview}
 \label{sec:ch5overview}
 
-This chapter provides a comprehensive technical description of the core AI
-subsystems embedded in the Learnova platform. These include the Embedding
-Service for semantic vectorisation, the Summarisation Service for AI-generated
-book summaries, the Retrieval-Augmented Generation (RAG) Q\&A Service for
-context-aware question answering, the Text-to-Speech pipeline for audio
-delivery, and the Recommendation Engine for personalised book suggestions.
-Together, these services transform a static digital book collection into a
-dynamic, queryable knowledge base that users can explore through natural
-language.
+This chapter provides a comprehensive technical description of the six AI
+subsystems embedded in the Learnova platform: the Ingestion Service, the
+Embedding Service, the Search Service, the Summarisation Service, the
+Retrieval-Augmented Generation (RAG) Q\&A Service, and the Recommendation
+Service. Together, these services transform a static collection of book files
+into a dynamic, queryable knowledge base that users can explore through natural
+language, receive personalised recommendations, and query for specific
+information --- without any manual indexing or metadata entry.
+
+% ===========================
+\section{Ingestion Service --- Document Processing Pipeline}
+\label{sec:ingestion}
+
+The Ingestion Service is the entry point for all book content in the platform.
+It accepts PDF and ePub files uploaded by library administrators and
+orchestrates a three-stage pipeline: text extraction, cleaning and sentence
+tokenisation, and sliding-window chunking. The output is a stream of text
+chunks published to Kafka, which the Embedding Service then consumes
+asynchronously to produce vector representations.
+
+\subsection{Text Extraction}
+
+Format detection is based on file extension. PDF files are processed using
+\textbf{PyMuPDF} (\texttt{fitz}), which extracts plain text page by page.
+ePub files are processed using \textbf{ebooklib}, which iterates over HTML
+chapter items, strips all HTML tags, and yields plain text sections. In both
+cases, pages or sections with fewer than 50 characters are silently skipped,
+filtering out blank pages, cover images, and decorative separators that would
+otherwise produce noise in the vector index.
+
+\subsection{Cleaning and Chunking}
+
+Extracted text is cleaned and sentence-tokenised before chunking. The chunker
+uses the \texttt{all-mpnet-base-v2} tokenizer to measure token counts
+precisely, ensuring that chunks match the embedding model's input space. A
+sliding-window algorithm fills each chunk greedily up to 512 tokens, then
+carries the last 50 tokens into the next chunk as overlap --- preserving
+cross-boundary semantic continuity. Sentences that individually exceed 512
+tokens are split into sub-windows before chunking begins.
+
+Each chunk is assigned a deterministic identifier of the form
+\texttt{\{isbn\}\_p\{page\_num\}\_c\{chunk\_index\}}, enabling exact
+traceability from any retrieved vector back to its source page in the original
+book.
+
+\begin{table}[H]
+\centering
+\caption{Ingestion Service Chunking Parameters}
+\label{tab:chunking}
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Parameter} & \textbf{Value} & \textbf{Config Key} & \textbf{Effect} \\
+\hline
+Chunk Size        & 512 tokens & CHUNK\_SIZE        & Maximum tokens per chunk \\
+\hline
+Chunk Overlap     & 50 tokens  & CHUNK\_OVERLAP     & Tokens carried into next chunk \\
+\hline
+Min Page Length   & 50 chars   & (hardcoded)        & Filters blank/decorative pages \\
+\hline
+Upsert Batch Size & 100 vectors & UPSERT\_BATCH\_SIZE & Vectors flushed per Pinecone call \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Kafka Publishing and Status Tracking}
+
+Each chunk is serialised as a JSON message and published to the Kafka topic
+\texttt{book.chunks} with the book's ISBN as the partition key, ensuring all
+chunks from the same book are processed in order by the same Embedding Service
+consumer instance. Ingestion runs as a FastAPI background task: the API accepts
+the upload, stores the file to disk, and immediately returns HTTP 202 Accepted
+with a job ID. The caller can poll \texttt{/ingest/\{isbn\}/status} to track
+progress through the \texttt{queued} $\rightarrow$ \texttt{processing}
+$\rightarrow$ \texttt{done} lifecycle, with status persisted in Redis.
 
 % ===========================
 \section{Embedding Service --- Semantic Vectorisation}
 \label{sec:embedding}
 
 The Embedding Service is the foundational layer of the platform's AI pipeline.
-It converts raw text chunks extracted from uploaded PDF books into dense
-numerical vectors that encode semantic meaning. These vectors serve as the
-retrieval backbone for every downstream AI capability: semantic search,
-recommendations, summarisation, and RAG Q\&A.
+It converts raw text chunks, produced by the Ingestion Service, into dense
+768-dimensional numerical vectors that encode semantic meaning. These vectors
+are stored in Pinecone and serve as the retrieval backbone for every downstream
+AI capability: semantic search, recommendations, summarisation, and RAG Q\&A.
 
 \subsection{Design Rationale}
 
 Traditional library search systems rely on keyword matching over metadata
-fields such as title, author, and category. This approach fails to surface
+fields such as title, author, and ISBN. This approach fails to surface
 semantically relevant content buried within the book text itself. Semantic
-search addresses this limitation by representing every passage as a point
-in a shared vector space: two passages with similar meaning are geometrically
+search addresses this limitation by representing every passage as a point in
+a shared vector space: two passages with similar meaning are geometrically
 close, even if they share no words in common.
 
-\subsection{Embedding Model: all-mpnet-base-v2}
+The Embedding Service is designed as a headless Kafka consumer with no HTTP
+interface of its own. This architectural choice decouples embedding from the
+upload API, allowing large books to be indexed asynchronously without blocking
+the user-facing request. Multiple consumer instances can be deployed
+independently to scale ingestion throughput.
 
-The \texttt{sentence-transformers/all-mpnet-base-v2} model was selected as
-the embedding backbone after evaluation on the Semantic Textual Similarity
-(STS) benchmark. It is a fine-tuned variant of Microsoft's MPNet architecture,
+\subsection{Model: all-mpnet-base-v2}
+
+The \texttt{sentence-transformers/all-mpnet-base-v2} model was selected as the
+embedding backbone after evaluation on the Semantic Textual Similarity (STS)
+benchmark. It is a fine-tuned variant of Microsoft's MPNet architecture,
 trained on over one billion sentence pairs, producing 768-dimensional vectors
 with state-of-the-art performance on passage-level retrieval tasks.
 
 A critical mathematical property is L2 normalisation: all output vectors are
 projected onto the unit hypersphere. Under this normalisation, cosine
-similarity equals the dot product of two vectors --- a property exploited
-by the vector database's ANN index through maximum inner-product search,
-enabling sub-millisecond retrieval across millions of vectors.
+similarity equals the dot product of two vectors --- a property exploited by
+Pinecone's ANN index through maximum inner-product search, enabling
+sub-millisecond retrieval across millions of vectors.
 
 \begin{table}[H]
 \centering
@@ -72,110 +144,242 @@ enabling sub-millisecond retrieval across millions of vectors.
 \hline
 \textbf{Property} & \textbf{Value} & \textbf{Justification} \\
 \hline
-Model & all-mpnet-base-v2 & Top STS benchmark performance on passage retrieval \\
+Model            & all-mpnet-base-v2       & Top STS benchmark performance on passage retrieval \\
 \hline
-Output Dimension & 768-d float32 & Balance between representational power and storage cost \\
+Output Dimension & 768-d float32           & Balance between representational power and storage cost \\
 \hline
-Normalisation & L2 (unit sphere) & Cosine similarity = dot product \\
+Normalisation    & L2 (unit sphere)        & Cosine similarity = dot product, exploited by Pinecone ANN \\
 \hline
-Batch Size & 64 texts / pass & Optimal GPU utilisation without out-of-memory risk \\
+Batch Size       & 64 texts / forward pass & Optimal GPU utilisation without out-of-memory risk \\
 \hline
-Hardware & CUDA GPU (CPU fallback) & Automatic device selection at runtime \\
+Hardware         & CUDA GPU (CPU fallback) & Automatic device selection at runtime \\
+\hline
+Lazy Loading     & On first encode() call  & Avoids GPU initialisation overhead at service startup \\
 \hline
 \end{tabularx}
 \end{table}
 
-\subsection{Processing Pipeline}
+\subsection{BookEncoder Implementation}
 
-The embedding pipeline processes uploaded books through the following stages:
+The \texttt{BookEncoder} class wraps the SentenceTransformer library and
+exposes two methods: \texttt{encode\_single()} for real-time query encoding
+and \texttt{encode\_batch()} for bulk ingestion. The
+\texttt{torch.no\_grad()} context manager disables gradient computation during
+inference, reducing memory usage and improving throughput by approximately
+30\%.
 
-\begin{enumerate}
-  \item \textbf{PDF Parsing}: The uploaded PDF is parsed into raw text pages.
-  \item \textbf{Chunking}: Text is split into overlapping chunks of
-        approximately 300 tokens to preserve context across chunk boundaries.
-  \item \textbf{Encoding}: Each chunk is encoded into a 768-dimensional
-        float32 vector using \texttt{all-mpnet-base-v2} with L2 normalisation.
-  \item \textbf{Storage}: Vectors are stored in the vector database,
-        partitioned by book identifier, enabling efficient per-book filtering.
-\end{enumerate}
+\begin{lstlisting}[language=Python, caption=BookEncoder encode\_batch method, 
+  basicstyle=\ttfamily\footnotesize, breaklines=true]
+def encode_batch(self, texts: list[str], batch_size: int = 64) -> np.ndarray:
+    model = self._ensure_model()       # lazy-load on first call
+    with torch.no_grad():              # disable gradients for inference
+        vecs = model.encode(
+            texts, batch_size=batch_size,
+            convert_to_numpy=True,
+            normalize_embeddings=True, # apply L2 normalisation
+        )
+    return vecs.astype(np.float32)     # 768-d float32 matrix
+\end{lstlisting}
 
-Batched encoding (64 texts per forward pass) is used to maximise throughput.
-The \texttt{torch.no\_grad()} context manager disables gradient computation
-during inference, reducing memory usage and improving throughput by
-approximately 30\%.
+\subsection{Kafka-to-Pinecone Pipeline and Fault Tolerance}
+
+The \texttt{EmbeddingBatchJob} class buffers up to 100 vector records in
+memory and flushes them to Pinecone as a single batched upsert, reducing API
+call overhead. Each vector is stored in a Pinecone namespace equal to the
+book's ISBN, enabling efficient per-book filtering without maintaining
+separate indexes.
+
+Upsert operations are retried up to three times with exponential back-off
+(delays of 1s, 2s, and 4s). If all three attempts fail, the batch is
+forwarded to a Kafka dead-letter topic (\texttt{book.chunks.dlq}) for manual
+inspection and replay.
+
+\begin{table}[H]
+\centering
+\caption{Embedding Batch Job Processing Stages}
+\label{tab:embedbatch}
+\begin{tabularx}{\textwidth}{|l|l|l|X|}
+\hline
+\textbf{Stage} & \textbf{Input} & \textbf{Output} & \textbf{Technology} \\
+\hline
+Consume & Kafka: book.chunks      & ChunkData object         & aiokafka KafkaConsumer \\
+\hline
+Encode  & Chunk text (string)     & 768-d float32 vector     & SentenceTransformer \\
+\hline
+Buffer  & Vector record + metadata & In-memory list (max 100) & Python list \\
+\hline
+Upsert  & List of records         & Pinecone index entry     & Pinecone client upsert() \\
+\hline
+DLQ     & Failed batch            & Kafka: book.chunks.dlq   & aiokafka KafkaProducer \\
+\hline
+\end{tabularx}
+\end{table}
+
+% ===========================
+\section{Search Service --- Two-Stage Semantic Retrieval}
+\label{sec:search}
+
+The Search Service provides natural-language book search across the entire
+library catalogue. Unlike traditional keyword search, the service encodes the
+query into a 768-dimensional vector and retrieves semantically similar passages
+--- surfacing relevant content even when the query shares no exact words with
+the text. To balance recall and precision, the service implements a two-stage
+retrieval pipeline combining a fast bi-encoder for candidate recall with a
+slower but more accurate cross-encoder for re-ranking.
+
+\subsection{Two-Stage Pipeline}
+
+\textbf{Stage 1 --- Approximate Nearest Neighbour (ANN) Retrieval:} The user's
+query is encoded by the same \texttt{all-mpnet-base-v2} bi-encoder used during
+ingestion, producing an L2-normalised 768-dimensional vector. This vector is
+submitted to Pinecone's global namespace, retrieving the top 50 candidates
+(\texttt{ANN\_TOP\_K = 50}) by cosine similarity. An optional genre filter can
+be applied as a Pinecone metadata filter to restrict results to specific
+categories.
+
+\textbf{Stage 2 --- Cross-Encoder Re-ranking:} The 50 ANN candidates are
+passed to a CrossEncoder model
+(\texttt{cross-encoder/ms-marco-MiniLM-L-6-v2}), which scores each
+query--passage pair jointly. Unlike the bi-encoder, which encodes query and
+passage independently, the cross-encoder attends to both simultaneously ---
+producing more accurate relevance scores at the cost of higher latency. The
+top 10 results (\texttt{FINAL\_TOP\_K = 10}) by cross-encoder score are
+returned to the caller.
+
+\begin{table}[H]
+\centering
+\caption{Search Service Two-Stage Pipeline}
+\label{tab:searchpipeline}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Stage} & \textbf{Model} & \textbf{Output} \\
+\hline
+ANN Retrieval  & all-mpnet-base-v2 (bi-encoder) & Top 50 candidates from Pinecone global namespace \\
+\hline
+Re-ranking     & cross-encoder/ms-marco-MiniLM-L-6-v2 & Top 10 results sorted by cross-encoder score \\
+\hline
+Similar Books  & CBF (Pinecone synopsis namespace) & Books semantically similar to a given ISBN \\
+\hline
+\end{tabularx}
+\end{table}
+
+\subsection{Caching and Similar-Book Search}
+
+Search results are cached in Redis for 60 seconds using a SHA-256 hash of the
+query, top-k, and genre filter as the cache key. This avoids redundant
+Pinecone queries for repeated searches within the same minute. The service also
+exposes a \texttt{/search/similar/\{isbn\}} endpoint that delegates to the
+Content-Based Filtering layer of the Recommendation Service, returning books
+whose synopsis vectors are closest to the requested ISBN in Pinecone's
+synopses namespace.
 
 % ===========================
 \section{Summarisation Service}
 \label{sec:summarisation}
 
 The Summarisation Service generates concise textual summaries of full book
-content. Because a full book may contain thousands of text chunks --- far
-exceeding any language model context window --- the service employs a
-map-reduce strategy to handle arbitrarily long documents.
+content and structured mind-map representations of key themes. Because a full
+book may contain thousands of text chunks --- far exceeding any language model
+context window --- the service employs a map-reduce strategy to handle
+arbitrarily long documents.
 
 \subsection{Model: FLAN-T5-large}
 
-The service uses Google's \textbf{FLAN-T5-large}, a sequence-to-sequence
-model based on the T5 architecture. FLAN-T5 was instruction-fine-tuned on a
-large collection of tasks expressed as natural language instructions, enabling
-it to follow structured prompts reliably without task-specific fine-tuning ---
-making it well-suited for a library system where content varies widely in
-genre and domain.
+The service uses Google's \textbf{FLAN-T5-large}, a sequence-to-sequence model
+based on the T5 architecture. FLAN-T5 was instruction-fine-tuned on a large
+collection of tasks expressed as natural language instructions, enabling it to
+follow structured prompts reliably without task-specific fine-tuning --- making
+it well-suited for a library system where content varies widely in genre and
+domain.
 
 Beam search (\texttt{num\_beams=4}) explores multiple candidate sequences
 simultaneously, consistently producing higher-quality summaries than greedy
-decoding. A \texttt{no\_repeat\_ngram\_size} of 3 suppresses repetitive
-phrase patterns, a common failure mode in extractive-style models.
+decoding. A \texttt{no\_repeat\_ngram\_size} of 3 suppresses repetitive phrase
+patterns, a common failure mode in extractive-style models.
 
 \begin{table}[H]
 \centering
-\caption{FLAN-T5 Summary Type Configurations}
+\caption{FLAN-T5 Prompt Configurations by Summary Type}
 \label{tab:summarytypes}
-\begin{tabularx}{\textwidth}{|l|l|X|}
+\begin{tabularx}{\textwidth}{|l|X|l|l|}
 \hline
-\textbf{Type} & \textbf{Max Tokens} & \textbf{Use Case} \\
+\textbf{Type} & \textbf{Prompt Role} & \textbf{Max Tokens} & \textbf{Use Case} \\
 \hline
-SHORT & 150 & Quick overview, catalogue listing \\
+SHORT    & Book blurb writer --- 2--3 engaging sentences for a general reader & 150 & Quick overview \\
 \hline
-DETAILED & 300 & Deep-dive analysis, book report \\
+DETAILED & Literary analyst --- thematic summary with key events and characters & 300 & Deep-dive analysis \\
 \hline
 \end{tabularx}
 \end{table}
 
 \subsection{Map-Reduce Pipeline}
 
-The summarisation pipeline processes books in two phases:
+The \texttt{MapReducePipeline} processes books in two phases to overcome the
+context window constraint:
 
-\textbf{MAP Phase:} Text chunks are retrieved in page-number order and divided
-into batches of 5 consecutive chunks. Each batch is independently summarised
-by FLAN-T5 with an 80-token output cap, producing a list of intermediate
-summaries.
+\textbf{MAP Phase:} Chunks are fetched from Pinecone in page-number order and
+divided into batches of 5 consecutive chunks. Each batch is independently
+summarised by FLAN-T5 with an 80-token output cap, producing a list of
+intermediate summaries. Batches are processed sequentially to respect GPU
+memory constraints.
 
 \textbf{REDUCE Phase:} All intermediate summaries are concatenated into a
 single string and passed through FLAN-T5 one final time with the user-selected
 type --- SHORT (150 tokens) or DETAILED (300 tokens) --- producing the final
 book summary.
 
-The final summary is cached with a configurable TTL, so repeated requests
-for the same book are served instantly without re-running the pipeline. A
-concurrency guard limits simultaneous summarisation jobs to prevent
-out-of-memory errors under simultaneous requests.
+The final summary is cached in Redis with a TTL of 24 hours, so repeated
+requests for the same book are served instantly without re-running the
+pipeline. A GPU queue counter in Redis limits concurrent summarisation jobs to
+a maximum of 4. If the queue is full, the API returns HTTP 503 with a
+\texttt{Retry-After} header.
+
+\subsection{Mind Map Generation}
+
+In addition to textual summaries, the service can generate a structured JSON
+mind-map tree representing the book's key themes. The \texttt{MindMapBuilder}
+class prompts FLAN-T5 to produce a JSON object with a root node (the book
+title) and child nodes (main themes), each containing a list of supporting
+subpoints. All output is validated against a Pydantic schema
+(\texttt{MindMapOutput}). If validation fails, a rule-based fallback generator
+guarantees a valid, well-structured response.
+
+\begin{table}[H]
+\centering
+\caption{Mind Map Generation Pipeline with Fallback Strategy}
+\label{tab:mindmap}
+\begin{tabularx}{\textwidth}{|l|X|X|l|}\hline
+\textbf{Stage} & \textbf{Input} & \textbf{Output} & \textbf{Fallback?} \\
+\hline
+Prompt              & Book summary (max 3000 chars) & Structured prompt  & No \\
+\hline
+Generation          & Prompt + FLAN-T5              & Raw text output    & No \\
+\hline
+JSON Extraction     & Raw text                      & Parsed dict object & Yes --- rule-based \\
+\hline
+Pydantic Validation & dict object                   & MindMapOutput      & Yes --- rule-based \\
+\hline
+Response            & MindMapOutput                 & JSON tree          & Fallback always valid \\
+\hline
+\end{tabularx}
+\end{table}
 
 % ===========================
 \section{RAG Q\&A Service}
 \label{sec:ragservice}
 
-The RAG Service enables users to pose natural-language questions about any
-book in the library and receive accurate, page-cited answers. Rather than
-relying on a language model's parametric knowledge, the service first retrieves
-the most relevant passages from the book and provides them as explicit context
-to the LLM, grounding its response in the actual text.
+The RAG Service enables users to pose natural-language questions about any book
+in the library and receive accurate, page-cited answers. Rather than relying on
+a language model's parametric knowledge, the service first retrieves the most
+relevant passages from the book and provides them as explicit context to the
+LLM, grounding its response in the actual text.
 
 \subsection{Architecture}
 
 The service is built on the \textbf{LangChain} framework with
-\textbf{OpenAI's GPT-4o-mini} as the generation model. The pipeline consists
-of three sequential components: a retriever, a chain, and a streaming layer.
+\textbf{Groq's Llama-3.3-70b-Versatile} as the generation model and Pinecone
+as the vector retrieval backend. The pipeline consists of three sequential
+components: a retriever, a chain, and a streaming layer.
 
 \begin{table}[H]
 \centering
@@ -185,38 +389,41 @@ of three sequential components: a retriever, a chain, and a streaming layer.
 \hline
 \textbf{Component} & \textbf{Technology} & \textbf{Responsibility} \\
 \hline
-Retriever & LangChain BaseRetriever & Encodes query and fetches top-K passages by book namespace \\
+Retriever & PineconeBookRetriever & Encodes query, fetches top-K passages by ISBN namespace \\
 \hline
-Chain & LangChain LCEL + PromptTemplate & Formats passages as context and submits to LLM \\
+Chain     & LangChain LCEL + PromptTemplate & Formats passages as context and submits to LLM \\
 \hline
-LLM & GPT-4o-mini (temp = 0.1) & Generates grounded answer citing page numbers \\
+LLM       & Llama-3.3-70b (temp = 0.1) & Generates grounded answer citing page numbers via Groq \\
 \hline
-Streaming & Server-Sent Events (SSE) & Delivers tokens incrementally as LLM produces them \\
+Streaming & SSE + asyncio Queue & Delivers tokens incrementally as LLM produces them \\
 \hline
-Cache & LRU cache (256 entries) & Avoids rebuilding chain on repeated requests \\
+Cache     & LRU cache (256 entries) & Avoids rebuilding chain on repeated requests \\
 \hline
 \end{tabularx}
 \end{table}
-
 \subsection{Retriever --- Similarity Threshold Filtering}
 
-The retriever encodes the user's question using the same
+The \texttt{PineconeBookRetriever} encodes the user's question using the same
 \texttt{all-mpnet-base-v2} model used during ingestion --- query and document
 vectors must occupy the same semantic space for similarity search to be
-meaningful.
+meaningful. The resulting 768-dimensional query vector is submitted to Pinecone
+for ANN search, retrieving the top 5 candidate passages
+(\texttt{RAG\_TOP\_K = 5}) within the namespace corresponding to the requested
+book's ISBN.
 
-A configurable similarity threshold is applied to the retrieved results: any
-passage scoring below the threshold is discarded before context assembly.
+A similarity threshold of \textbf{0.30} is applied to the retrieved results:
+any passage scoring below this threshold is discarded before context assembly.
 This mechanism serves as a \textbf{hallucination guard} --- without it, a
-model receiving weakly-related passages may generate plausible-sounding
-answers not supported by the book. If no passages exceed the threshold, the
-system returns a standardised insufficient-information message.
+model receiving weakly-related passages may generate plausible-sounding answers
+not supported by the book. If no passages exceed the threshold, the chain
+returns a standardised insufficient-information message.
 
-\subsection{Chain --- Grounded Prompting}
+\subsection{Chain --- Grounded Prompting and Token Budget}
 
-Retrieved passages are assembled into a context block and provided to
-GPT-4o-mini for grounded answer generation. A custom system prompt enforces
-three strict behavioural constraints on the model:
+The RAG pipeline is implemented as a LangChain Expression Language (LCEL)
+chain following the ``stuff'' strategy, concatenating all retrieved passages
+into a single context block. A custom system prompt enforces three strict
+behavioural constraints:
 
 \begin{itemize}
   \item Answer using \textbf{only} the provided excerpts --- no external or
@@ -226,15 +433,28 @@ three strict behavioural constraints on the model:
         insufficient to answer the question.
 \end{itemize}
 
+\begin{lstlisting}[language=Python, caption=RAG System Prompt Definition,
+  basicstyle=\ttfamily\footnotesize, breaklines=true]
+SYSTEM_PROMPT = (
+  "You are an intelligent reading assistant for the Smart AI Library. "
+  "Answer using ONLY the excerpts provided below. "
+  "If the excerpts are insufficient, respond: "
+  "'I don't have enough information from this book to answer that.' "
+  "Always cite the page number(s) you drew information from."
+)
+\end{lstlisting}
+
 A token budget guard truncates the assembled context to a maximum of 3,800
-tokens using \texttt{tiktoken}, preventing context-overflow API failures.
+tokens using \texttt{tiktoken} (\texttt{cl100k\_base} encoding), preventing
+context-overflow API failures.
 
 \subsection{Streaming --- Server-Sent Events (SSE)}
 
-To improve perceived responsiveness, the service delivers GPT-4o-mini's
-response token-by-token via Server-Sent Events (SSE). This allows users to
-begin reading the answer while it is still being generated --- particularly
-valuable for detailed queries producing several paragraphs of output.
+To improve perceived responsiveness, the service delivers
+Llama-3.3-70b-Versatile's response token-by-token via Server-Sent Events
+(SSE). An \texttt{asyncio Queue} acts as an in-process message bus between the
+LangChain streaming callback and the SSE generator coroutine. A 15-second
+inter-token timeout terminates the stream if the model stalls.
 
 \begin{table}[H]
 \centering
@@ -244,105 +464,135 @@ valuable for detailed queries producing several paragraphs of output.
 \hline
 \textbf{SSE Event} & \textbf{Meaning} \\
 \hline
-\texttt{data: <token>} & A generated token --- client appends it to the displayed answer \\
+\texttt{data: <token>}   & A generated token --- client appends it to the displayed answer \\
 \hline
-\texttt{data: [DONE]} & Generation complete --- client should close the event stream \\
+\texttt{data: [DONE]}    & Generation complete --- client should close the event stream \\
 \hline
 \texttt{data: [TIMEOUT]} & No token received within 15 seconds --- stream terminated \\
 \hline
-\texttt{data: [ERROR]} & Exception occurred during chain execution --- stream aborted \\
+\texttt{data: [ERROR]}   & Exception during chain execution --- stream aborted \\
 \hline
 \end{tabularx}
 \end{table}
 
 % ===========================
-\section{Text-to-Speech Pipeline}
-\label{sec:ttspipeline}
-
-The Text-to-Speech (TTS) pipeline is a core differentiating feature of
-Learnova, enabling users to consume digital books as high-quality audio
-experiences. The pipeline converts uploaded PDF content into narrated audio
-delivered through a Spotify-inspired player interface.
-
-\subsection{Pipeline Stages}
-
-\begin{enumerate}
-  \item \textbf{PDF Text Extraction}: The uploaded book is parsed chapter
-        by chapter using a PDF processing library.
-  \item \textbf{Text Preprocessing}: Extracted text is cleaned, punctuation
-        is normalised, and chapter boundaries are identified.
-  \item \textbf{TTS Synthesis}: Text is submitted to the TTS API
-        (OpenAI TTS or Google Text-to-Speech) for high-quality neural
-        voice synthesis.
-  \item \textbf{Audio Storage}: Generated audio segments are stored and
-        indexed by chapter for on-demand streaming.
-  \item \textbf{Playback}: The Flutter frontend streams audio via the
-        \texttt{just\_audio} package with BLoC state management controlling
-        playback state, speed, and chapter navigation.
-\end{enumerate}
-
-\subsection{Flutter Audio Player}
-
-The audio player in Learnova is implemented as a persistent Mini Player,
-remaining accessible across all screens of the application. Key features
-include:
-
-\begin{itemize}
-  \item Playback speed control (0.5$\times$ to 2.0$\times$).
-  \item Chapter-level navigation with progress tracking.
-  \item Background audio playback with media session integration.
-  \item Sleep timer functionality.
-\end{itemize}
-
-% ===========================
-\section{Recommendation Engine}
+\section{Recommendation Service --- Hybrid NCF + CBF}
 \label{sec:recommender}
 
-The Recommendation Engine analyses user behaviour to suggest relevant books
-and educational materials, providing a personalised discovery experience.
+The Recommendation Service delivers personalised book recommendations by
+combining two complementary AI techniques: Neural Collaborative Filtering
+(NCF), which learns from user behaviour, and Content-Based Filtering (CBF),
+which reasons over book content semantics. A hybrid fusion layer blends the
+two signals with weights that adapt dynamically based on the user's interaction
+history.
 
-\subsection{Data Sources}
+\subsection{Neural Collaborative Filtering (NCF)}
 
-The engine leverages multiple signals to compute recommendations:
+The NCF model is a PyTorch implementation of the Generalised Matrix
+Factorisation + MLP architecture (He et al., 2017). It maintains two separate
+embedding tables for users and items --- one for the GMF branch and one for
+the MLP branch --- allowing each pathway to learn complementary interaction
+patterns.
 
-\begin{itemize}
-  \item \textbf{Reading history}: Books previously read or listened to by
-        the user.
-  \item \textbf{Ratings}: Explicit star ratings provided by users after
-        completing a book.
-  \item \textbf{Favourites}: Books added to the user's favourites list.
-  \item \textbf{Semantic similarity}: Vector similarity between the
-        embeddings of books in the user's history and candidate books.
-\end{itemize}
+The \textbf{GMF branch} computes an element-wise product of user and item
+embeddings, capturing linear co-occurrence signals. The \textbf{MLP branch}
+concatenates the embeddings and passes them through three fully-connected
+layers [128, 64, 32] with ReLU activations and 0.2 dropout, capturing
+non-linear interaction patterns. The outputs of both branches are concatenated
+and passed through a final sigmoid layer to produce a relevance score in
+$[0,1]$.
 
-\subsection{Approach}
+\begin{table}[H]
+\centering
+\caption{NCF Model Hyperparameters}
+\label{tab:ncf}
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Hyperparameter} & \textbf{Value} \\
+\hline
+Embedding Dimension (emb\_dim) & 64 \\
+\hline
+MLP Hidden Layers & [128, 64, 32] \\
+\hline
+Dropout Rate & 0.2 \\
+\hline
+Output Activation & Sigmoid $\rightarrow$ score in $[0, 1]$ \\
+\hline
+Weight Initialisation & Normal (std=0.01) for embeddings; Xavier uniform for linear layers \\
+\hline
+\end{tabularx}
+\end{table}
 
-The recommendation pipeline employs a hybrid strategy combining
-\textbf{collaborative filtering} (recommending books enjoyed by users with
-similar reading patterns) and \textbf{content-based filtering} (recommending
-books semantically similar to the user's reading history using the embedding
-vectors produced by the Embedding Service). This hybrid approach mitigates
-the cold-start problem while improving recommendation relevance as user
-history grows.
+The model is updated incrementally via an Online Updater that consumes user
+interaction events from the Kafka topic \texttt{user.events}. Events classified
+as positive signals (\texttt{read\_start}, \texttt{bookmark},
+\texttt{rating\_4}, \texttt{rating\_5}) trigger a single SGD step on the user
+embedding layers only (learning rate = $5 \times 10^{-4}$), keeping item
+embeddings stable while personalising user representations in near real-time.
+
+\subsection{Content-Based Filtering (CBF)}
+
+The CBF layer uses Pinecone's \texttt{synopses} namespace, which stores one
+synopsis vector per book. Each synopsis vector is the L2-normalised average of
+all chunk vectors for that book, computed and upserted by the Embedding Service
+after ingestion. To find books similar to a seed title, the CBF layer fetches
+the seed's synopsis vector and queries Pinecone for the closest neighbours by
+cosine similarity.
+
+\subsection{Hybrid Fusion and User Tiers}
+
+The final recommendation score is a weighted linear blend of the NCF and CBF
+scores:
+
+\begin{equation}
+\text{score} = \alpha \times \text{CF} + (1 - \alpha) \times \text{CBF}
+\end{equation}
+
+The weight $\alpha$ is determined by the user's interaction tier, computed
+from the number of reading events recorded in the database:
+
+\begin{table}[H]
+\centering
+\caption{Hybrid Fusion Alpha Values by User Tier}
+\label{tab:usertier}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\textbf{Tier} & \textbf{Condition} & \textbf{Alpha ($\alpha$)} \\
+\hline
+New       & Fewer than 5 interactions  & 0.10 --- mostly content-based \\
+\hline
+Returning & 5 to 49 interactions       & 0.55 --- balanced blend \\
+\hline
+Power     & 50 or more interactions    & 0.80 --- mostly collaborative \\
+\hline
+\end{tabularx}
+\end{table}
+
+This tiered approach solves the cold-start problem: new users with little
+interaction history receive content-driven recommendations based on book
+semantics, while power users benefit primarily from collaborative signals
+learned from their accumulated behaviour. Recommendations are cached in Redis
+for 5 minutes per user and are subject to a rate limit of 60 requests per
+minute per user, enforced via a Redis sliding-window counter.
 
 % ===========================
 \section{Ethical Considerations}
 \label{sec:ethics}
 
 The deployment of AI-powered features in a library context carries
-responsibilities beyond technical correctness. The following ethical
-principles were explicitly considered during the design and implementation
-of the platform's AI subsystems.
+responsibilities beyond technical correctness. The following ethical principles
+were explicitly considered during the design and implementation of the
+platform's AI subsystems.
 
 \subsection{Hallucination Mitigation}
 
 Large language models can generate factually incorrect information with high
 confidence --- a phenomenon termed \textit{hallucination}. In a library
-context, a hallucinated answer could seriously mislead researchers or
-students. The RAG service addresses this through two complementary
-mechanisms: the similarity threshold filter rejects weakly-related passages
-before they reach the LLM, and the system prompt explicitly forbids the
-model from drawing on knowledge outside the provided excerpts.
+context, a hallucinated answer could seriously mislead researchers or students.
+The RAG service addresses this through two complementary mechanisms: the
+similarity threshold filter rejects weakly-related passages before they reach
+the LLM, and the system prompt explicitly forbids the model from drawing on
+knowledge outside the provided excerpts.
 
 \subsection{Transparency and Source Attribution}
 
@@ -362,26 +612,33 @@ circumvent copyright restrictions.
 
 \subsection{Model Bias and Limitations}
 
-The pre-trained models used in this platform were not fine-tuned on
+The pre-trained models used in this platform
+(\texttt{all-mpnet-base-v2}, \texttt{FLAN-T5-large},
+\texttt{Llama-3.3-70b-Versatile}, and
+\texttt{cross-encoder/ms-marco-MiniLM-L-6-v2}) were not fine-tuned on
 library-domain data. As a result, they may perform less accurately on highly
-specialised technical content. The platform currently supports
-English-language content; extension to Arabic and other languages is
+specialised technical content or non-English texts. The platform currently
+supports English-language content; extension to Arabic and other languages is
 identified as a planned future enhancement.
 
 % ===========================
 \section*{Chapter Summary}
 \addcontentsline{toc}{section}{Chapter Summary}
 
-This chapter documented the core AI subsystems of the Learnova platform. The
-Embedding Service uses \texttt{all-mpnet-base-v2} to produce L2-normalised
-768-dimensional vectors that power semantic search and retrieval. The
-Summarisation Service applies a FLAN-T5-large map-reduce pipeline to handle
-full-book content, producing concise summaries at two detail levels. The RAG
-Q\&A Service combines vector retrieval with GPT-4o-mini generation, enforcing
-grounded output through a similarity threshold and a strict system prompt,
-while delivering responses incrementally via SSE streaming. The TTS pipeline
-converts book content into high-quality audio for immersive listening
-experiences. The Recommendation Engine combines collaborative and
-content-based filtering to personalise book discovery. Together, these
-services realise Learnova's core value proposition: transforming a static
-digital book collection into an intelligent, interactive learning platform.
+This chapter documented the six core AI subsystems of the Learnova platform.
+The Ingestion Service processes PDF and ePub files through a three-stage
+pipeline --- text extraction, chunking, and Kafka publishing --- producing
+traceable 512-token chunks for downstream services. The Embedding Service
+consumes these chunks and encodes them into L2-normalised 768-dimensional
+vectors using \texttt{all-mpnet-base-v2}, stored in Pinecone by ISBN
+namespace. The Search Service combines a bi-encoder ANN stage with a
+cross-encoder re-ranking stage to deliver accurate semantic search results.
+The Summarisation Service applies a FLAN-T5-large map-reduce pipeline to
+produce SHORT and DETAILED summaries and structured mind-map trees. The RAG
+Q\&A Service combines Pinecone retrieval with Llama-3.3-70b-Versatile
+generation, enforcing grounded output through a similarity threshold and a
+strict system prompt, delivering responses via SSE streaming with page-level
+citations. Finally, the Recommendation Service blends NCF and CBF signals
+through a tiered fusion strategy, adapting dynamically to each user's
+interaction history. Together, these services transform Learnova from a static
+digital library into an intelligent, interactive knowledge platform.

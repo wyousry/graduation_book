@@ -22,8 +22,14 @@
 \contentsline {table}{\numberline {3.17}{\ignorespaces Testing Tools and Scope}}{31}{table.caption.22}%
 \contentsline {table}{\numberline {3.18}{\ignorespaces Sample API Test Cases and Expected Results}}{32}{table.caption.23}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Embedding Model Configuration and Design Decisions}}{37}{table.caption.24}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces FLAN-T5 Summary Type Configurations}}{38}{table.caption.25}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces RAG Service Component Overview}}{39}{table.caption.26}%
-\contentsline {table}{\numberline {4.4}{\ignorespaces SSE Protocol Events in the RAG Streaming Endpoint}}{40}{table.caption.27}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Ingestion Service Chunking Parameters}}{37}{table.caption.24}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Embedding Model Configuration and Design Decisions}}{38}{table.caption.25}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Embedding Batch Job Processing Stages}}{39}{table.caption.26}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Search Service Two-Stage Pipeline}}{40}{table.caption.27}%
+\contentsline {table}{\numberline {4.5}{\ignorespaces FLAN-T5 Prompt Configurations by Summary Type}}{41}{table.caption.28}%
+\contentsline {table}{\numberline {4.6}{\ignorespaces Mind Map Generation Pipeline with Fallback Strategy}}{42}{table.caption.29}%
+\contentsline {table}{\numberline {4.7}{\ignorespaces RAG Service Component Overview}}{43}{table.caption.30}%
+\contentsline {table}{\numberline {4.8}{\ignorespaces SSE Protocol Events in the RAG Streaming Endpoint}}{44}{table.caption.31}%
+\contentsline {table}{\numberline {4.9}{\ignorespaces NCF Model Hyperparameters}}{45}{table.caption.32}%
+\contentsline {table}{\numberline {4.10}{\ignorespaces Hybrid Fusion Alpha Values by User Tier}}{46}{table.caption.33}%
 \contentsfinish 

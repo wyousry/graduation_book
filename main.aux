@@ -155,44 +155,66 @@
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{toc}{\contentsline {section}{\numberline {4.1}Overview}{36}{section.4.1}\protected@file@percent }
 \newlabel{sec:ch5overview}{{4.1}{36}{Overview}{section.4.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.2}Embedding Service --- Semantic Vectorisation}{36}{section.4.2}\protected@file@percent }
-\newlabel{sec:embedding}{{4.2}{36}{Embedding Service --- Semantic Vectorisation}{section.4.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Design Rationale}{36}{subsection.4.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Embedding Model: all-mpnet-base-v2}{36}{subsection.4.2.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Embedding Model Configuration and Design Decisions}}{37}{table.caption.24}\protected@file@percent }
-\newlabel{tab:embedding}{{4.1}{37}{Embedding Model Configuration and Design Decisions}{table.caption.24}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}Processing Pipeline}{37}{subsection.4.2.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.3}Summarisation Service}{37}{section.4.3}\protected@file@percent }
-\newlabel{sec:summarisation}{{4.3}{37}{Summarisation Service}{section.4.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}Model: FLAN-T5-large}{37}{subsection.4.3.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces FLAN-T5 Summary Type Configurations}}{38}{table.caption.25}\protected@file@percent }
-\newlabel{tab:summarytypes}{{4.2}{38}{FLAN-T5 Summary Type Configurations}{table.caption.25}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Map-Reduce Pipeline}{38}{subsection.4.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.4}RAG Q\&A Service}{38}{section.4.4}\protected@file@percent }
-\newlabel{sec:ragservice}{{4.4}{38}{RAG Q\&A Service}{section.4.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Architecture}{38}{subsection.4.4.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.3}{\ignorespaces RAG Service Component Overview}}{39}{table.caption.26}\protected@file@percent }
-\newlabel{tab:ragcomponents}{{4.3}{39}{RAG Service Component Overview}{table.caption.26}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Retriever --- Similarity Threshold Filtering}{39}{subsection.4.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.3}Chain --- Grounded Prompting}{39}{subsection.4.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.4}Streaming --- Server-Sent Events (SSE)}{40}{subsection.4.4.4}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4.4}{\ignorespaces SSE Protocol Events in the RAG Streaming Endpoint}}{40}{table.caption.27}\protected@file@percent }
-\newlabel{tab:sseevents}{{4.4}{40}{SSE Protocol Events in the RAG Streaming Endpoint}{table.caption.27}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.5}Text-to-Speech Pipeline}{40}{section.4.5}\protected@file@percent }
-\newlabel{sec:ttspipeline}{{4.5}{40}{Text-to-Speech Pipeline}{section.4.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.1}Pipeline Stages}{40}{subsection.4.5.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}Flutter Audio Player}{40}{subsection.4.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.6}Recommendation Engine}{41}{section.4.6}\protected@file@percent }
-\newlabel{sec:recommender}{{4.6}{41}{Recommendation Engine}{section.4.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.1}Data Sources}{41}{subsection.4.6.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.2}Approach}{41}{subsection.4.6.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4.7}Ethical Considerations}{41}{section.4.7}\protected@file@percent }
-\newlabel{sec:ethics}{{4.7}{41}{Ethical Considerations}{section.4.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.1}Hallucination Mitigation}{41}{subsection.4.7.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.2}Transparency and Source Attribution}{42}{subsection.4.7.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.3}Content Scope and Copyright}{42}{subsection.4.7.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.4}Model Bias and Limitations}{42}{subsection.4.7.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Chapter Summary}{42}{subsection.4.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.2}Ingestion Service --- Document Processing Pipeline}{36}{section.4.2}\protected@file@percent }
+\newlabel{sec:ingestion}{{4.2}{36}{Ingestion Service --- Document Processing Pipeline}{section.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.1}Text Extraction}{36}{subsection.4.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.2}Cleaning and Chunking}{36}{subsection.4.2.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces Ingestion Service Chunking Parameters}}{37}{table.caption.24}\protected@file@percent }
+\newlabel{tab:chunking}{{4.1}{37}{Ingestion Service Chunking Parameters}{table.caption.24}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2.3}Kafka Publishing and Status Tracking}{37}{subsection.4.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.3}Embedding Service --- Semantic Vectorisation}{37}{section.4.3}\protected@file@percent }
+\newlabel{sec:embedding}{{4.3}{37}{Embedding Service --- Semantic Vectorisation}{section.4.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.1}Design Rationale}{37}{subsection.4.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.2}Model: all-mpnet-base-v2}{38}{subsection.4.3.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces Embedding Model Configuration and Design Decisions}}{38}{table.caption.25}\protected@file@percent }
+\newlabel{tab:embedding}{{4.2}{38}{Embedding Model Configuration and Design Decisions}{table.caption.25}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}BookEncoder Implementation}{38}{subsection.4.3.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.1}{\ignorespaces BookEncoder encode\_batch method}}{38}{lstlisting.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3.4}Kafka-to-Pinecone Pipeline and Fault Tolerance}{39}{subsection.4.3.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.3}{\ignorespaces Embedding Batch Job Processing Stages}}{39}{table.caption.26}\protected@file@percent }
+\newlabel{tab:embedbatch}{{4.3}{39}{Embedding Batch Job Processing Stages}{table.caption.26}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}Search Service --- Two-Stage Semantic Retrieval}{39}{section.4.4}\protected@file@percent }
+\newlabel{sec:search}{{4.4}{39}{Search Service --- Two-Stage Semantic Retrieval}{section.4.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Two-Stage Pipeline}{40}{subsection.4.4.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.4}{\ignorespaces Search Service Two-Stage Pipeline}}{40}{table.caption.27}\protected@file@percent }
+\newlabel{tab:searchpipeline}{{4.4}{40}{Search Service Two-Stage Pipeline}{table.caption.27}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Caching and Similar-Book Search}{40}{subsection.4.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4.5}Summarisation Service}{41}{section.4.5}\protected@file@percent }
+\newlabel{sec:summarisation}{{4.5}{41}{Summarisation Service}{section.4.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.1}Model: FLAN-T5-large}{41}{subsection.4.5.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.5}{\ignorespaces FLAN-T5 Prompt Configurations by Summary Type}}{41}{table.caption.28}\protected@file@percent }
+\newlabel{tab:summarytypes}{{4.5}{41}{FLAN-T5 Prompt Configurations by Summary Type}{table.caption.28}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}Map-Reduce Pipeline}{41}{subsection.4.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.3}Mind Map Generation}{42}{subsection.4.5.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.6}{\ignorespaces Mind Map Generation Pipeline with Fallback Strategy}}{42}{table.caption.29}\protected@file@percent }
+\newlabel{tab:mindmap}{{4.6}{42}{Mind Map Generation Pipeline with Fallback Strategy}{table.caption.29}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.6}RAG Q\&A Service}{42}{section.4.6}\protected@file@percent }
+\newlabel{sec:ragservice}{{4.6}{42}{RAG Q\&A Service}{section.4.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.1}Architecture}{42}{subsection.4.6.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.7}{\ignorespaces RAG Service Component Overview}}{43}{table.caption.30}\protected@file@percent }
+\newlabel{tab:ragcomponents}{{4.7}{43}{RAG Service Component Overview}{table.caption.30}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.2}Retriever --- Similarity Threshold Filtering}{43}{subsection.4.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.3}Chain --- Grounded Prompting and Token Budget}{43}{subsection.4.6.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4.2}{\ignorespaces RAG System Prompt Definition}}{44}{lstlisting.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6.4}Streaming --- Server-Sent Events (SSE)}{44}{subsection.4.6.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.8}{\ignorespaces SSE Protocol Events in the RAG Streaming Endpoint}}{44}{table.caption.31}\protected@file@percent }
+\newlabel{tab:sseevents}{{4.8}{44}{SSE Protocol Events in the RAG Streaming Endpoint}{table.caption.31}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.7}Recommendation Service --- Hybrid NCF + CBF}{44}{section.4.7}\protected@file@percent }
+\newlabel{sec:recommender}{{4.7}{44}{Recommendation Service --- Hybrid NCF + CBF}{section.4.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.1}Neural Collaborative Filtering (NCF)}{44}{subsection.4.7.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.9}{\ignorespaces NCF Model Hyperparameters}}{45}{table.caption.32}\protected@file@percent }
+\newlabel{tab:ncf}{{4.9}{45}{NCF Model Hyperparameters}{table.caption.32}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.2}Content-Based Filtering (CBF)}{45}{subsection.4.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7.3}Hybrid Fusion and User Tiers}{45}{subsection.4.7.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4.10}{\ignorespaces Hybrid Fusion Alpha Values by User Tier}}{46}{table.caption.33}\protected@file@percent }
+\newlabel{tab:usertier}{{4.10}{46}{Hybrid Fusion Alpha Values by User Tier}{table.caption.33}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.8}Ethical Considerations}{46}{section.4.8}\protected@file@percent }
+\newlabel{sec:ethics}{{4.8}{46}{Ethical Considerations}{section.4.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8.1}Hallucination Mitigation}{46}{subsection.4.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8.2}Transparency and Source Attribution}{46}{subsection.4.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8.3}Content Scope and Copyright}{46}{subsection.4.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8.4}Model Bias and Limitations}{47}{subsection.4.8.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Chapter Summary}{47}{subsection.4.8.4}\protected@file@percent }
 \bibstyle{ieeetr}
 \bibdata{references}
 \bibcite{tiwari2023}{1}
@@ -208,4 +230,4 @@
 \bibcite{ieeerecsys2024}{11}
 \bibcite{ikwuanusi2023}{12}
 \ttl@finishall
-\gdef \@abspage@last{53}
+\gdef \@abspage@last{59}

@@ -68,28 +68,35 @@
 \contentsline {section}{Chapter Summary}{34}{section.3.11}%
 \contentsline {chapter}{\numberline {4}Intelligent Features of the System}{35}{chapter.4}%
 \contentsline {section}{\numberline {4.1}Overview}{36}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Embedding Service --- Semantic Vectorisation}{36}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Design Rationale}{36}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}Embedding Model: all-mpnet-base-v2}{36}{subsection.4.2.2}%
-\contentsline {subsection}{\numberline {4.2.3}Processing Pipeline}{37}{subsection.4.2.3}%
-\contentsline {section}{\numberline {4.3}Summarisation Service}{37}{section.4.3}%
-\contentsline {subsection}{\numberline {4.3.1}Model: FLAN-T5-large}{37}{subsection.4.3.1}%
-\contentsline {subsection}{\numberline {4.3.2}Map-Reduce Pipeline}{38}{subsection.4.3.2}%
-\contentsline {section}{\numberline {4.4}RAG Q\&A Service}{38}{section.4.4}%
-\contentsline {subsection}{\numberline {4.4.1}Architecture}{38}{subsection.4.4.1}%
-\contentsline {subsection}{\numberline {4.4.2}Retriever --- Similarity Threshold Filtering}{39}{subsection.4.4.2}%
-\contentsline {subsection}{\numberline {4.4.3}Chain --- Grounded Prompting}{39}{subsection.4.4.3}%
-\contentsline {subsection}{\numberline {4.4.4}Streaming --- Server-Sent Events (SSE)}{40}{subsection.4.4.4}%
-\contentsline {section}{\numberline {4.5}Text-to-Speech Pipeline}{40}{section.4.5}%
-\contentsline {subsection}{\numberline {4.5.1}Pipeline Stages}{40}{subsection.4.5.1}%
-\contentsline {subsection}{\numberline {4.5.2}Flutter Audio Player}{40}{subsection.4.5.2}%
-\contentsline {section}{\numberline {4.6}Recommendation Engine}{41}{section.4.6}%
-\contentsline {subsection}{\numberline {4.6.1}Data Sources}{41}{subsection.4.6.1}%
-\contentsline {subsection}{\numberline {4.6.2}Approach}{41}{subsection.4.6.2}%
-\contentsline {section}{\numberline {4.7}Ethical Considerations}{41}{section.4.7}%
-\contentsline {subsection}{\numberline {4.7.1}Hallucination Mitigation}{41}{subsection.4.7.1}%
-\contentsline {subsection}{\numberline {4.7.2}Transparency and Source Attribution}{42}{subsection.4.7.2}%
-\contentsline {subsection}{\numberline {4.7.3}Content Scope and Copyright}{42}{subsection.4.7.3}%
-\contentsline {subsection}{\numberline {4.7.4}Model Bias and Limitations}{42}{subsection.4.7.4}%
-\contentsline {section}{Chapter Summary}{42}{subsection.4.7.4}%
+\contentsline {section}{\numberline {4.2}Ingestion Service --- Document Processing Pipeline}{36}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Text Extraction}{36}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Cleaning and Chunking}{36}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Kafka Publishing and Status Tracking}{37}{subsection.4.2.3}%
+\contentsline {section}{\numberline {4.3}Embedding Service --- Semantic Vectorisation}{37}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Design Rationale}{37}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Model: all-mpnet-base-v2}{38}{subsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.3.3}BookEncoder Implementation}{38}{subsection.4.3.3}%
+\contentsline {subsection}{\numberline {4.3.4}Kafka-to-Pinecone Pipeline and Fault Tolerance}{39}{subsection.4.3.4}%
+\contentsline {section}{\numberline {4.4}Search Service --- Two-Stage Semantic Retrieval}{39}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Two-Stage Pipeline}{40}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Caching and Similar-Book Search}{40}{subsection.4.4.2}%
+\contentsline {section}{\numberline {4.5}Summarisation Service}{41}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Model: FLAN-T5-large}{41}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Map-Reduce Pipeline}{41}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}Mind Map Generation}{42}{subsection.4.5.3}%
+\contentsline {section}{\numberline {4.6}RAG Q\&A Service}{42}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Architecture}{42}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}Retriever --- Similarity Threshold Filtering}{43}{subsection.4.6.2}%
+\contentsline {subsection}{\numberline {4.6.3}Chain --- Grounded Prompting and Token Budget}{43}{subsection.4.6.3}%
+\contentsline {subsection}{\numberline {4.6.4}Streaming --- Server-Sent Events (SSE)}{44}{subsection.4.6.4}%
+\contentsline {section}{\numberline {4.7}Recommendation Service --- Hybrid NCF + CBF}{44}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}Neural Collaborative Filtering (NCF)}{44}{subsection.4.7.1}%
+\contentsline {subsection}{\numberline {4.7.2}Content-Based Filtering (CBF)}{45}{subsection.4.7.2}%
+\contentsline {subsection}{\numberline {4.7.3}Hybrid Fusion and User Tiers}{45}{subsection.4.7.3}%
+\contentsline {section}{\numberline {4.8}Ethical Considerations}{46}{section.4.8}%
+\contentsline {subsection}{\numberline {4.8.1}Hallucination Mitigation}{46}{subsection.4.8.1}%
+\contentsline {subsection}{\numberline {4.8.2}Transparency and Source Attribution}{46}{subsection.4.8.2}%
+\contentsline {subsection}{\numberline {4.8.3}Content Scope and Copyright}{46}{subsection.4.8.3}%
+\contentsline {subsection}{\numberline {4.8.4}Model Bias and Limitations}{47}{subsection.4.8.4}%
+\contentsline {section}{Chapter Summary}{47}{subsection.4.8.4}%
 \contentsfinish 
